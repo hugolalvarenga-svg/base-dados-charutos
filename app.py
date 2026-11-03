@@ -1,11 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-import io
-from PIL import Image, ImageOps, ImageFile
 import base64
-
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Configuração da página
 st.set_page_config(page_title="Base de Dados de Caixas de Charutos Vintage", page_icon="📦", layout="wide")
@@ -26,23 +22,14 @@ dados_iniciais = [
     {"ID": 11, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", "Preço (€)": 125.0, "Selecionado para Venda": True, "Notas": "Luxuoso estojo de veludo vermelho com 30 unidades.", "Fotos": ""}
 ]
 
-# Função ultra-robusta para guardar fotos (Trata HDR e falhas de metadados)
-def guardar_fotos_upload(lista_ficheros, id_artigo):
+# Gravação direta por bytes (Garante que qualquer foto do telemóvel, HDR ou JPG, é guardada de imediato)
+def guardar_fotos_direto(lista_ficheiros, id_artigo):
     os.makedirs("imagens_caixas", exist_ok=True)
     novos_caminhos = []
-    for f_pos, up_file in enumerate(lista_ficheros[:4]):
+    for f_pos, up_file in enumerate(lista_ficheiros[:4]):
         caminho = os.path.join("imagens_caixas", f"artigo_{id_artigo}_f{f_pos+1}.jpg")
-        bytes_data = up_file.getvalue()
-        try:
-            img = Image.open(io.BytesIO(bytes_data))
-            img = ImageOps.exif_transpose(img)
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
-            img.save(caminho, "JPEG", quality=85)
-        except Exception:
-            # Fallback direto: se o HDR falhar no Pillow, guarda os bytes crus com sucesso
-            with open(caminho, "wb") as f:
-                f.write(bytes_data)
+        with open(caminho, "wb") as f:
+            f.write(up_file.getbuffer())
         novos_caminhos.append(caminho)
     return ";".join(novos_caminhos)
 
@@ -100,7 +87,6 @@ with aba1:
             with col_a:
                 st.markdown(f"**{row_1['Artigo']}**")
                 
-                # Miniaturas lado a lado em horizontal
                 fotos_1 = [f.strip() for f in str(row_1['Fotos']).split(";") if f.strip() != ""]
                 if fotos_1:
                     html_imgs = '<div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 6px;">'
@@ -113,20 +99,19 @@ with aba1:
                 else:
                     st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                 
-                # Zonas compactas lado a lado (Upload, Nome, Preço)
                 c_up, c_nom, c_pre = st.columns([1.2, 1.3, 1])
                 with c_up:
-                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
+                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']}", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
                 with c_nom:
                     novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']), key=f"n_{row_1['ID']}")
                 with c_pre:
                     novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), key=f"p_{row_1['ID']}", step=5.0)
                 
                 if ups_1:
-                    novos_caminhos = guardar_fotos_upload(ups_1, row_1['ID'])
+                    novos_caminhos = guardar_fotos_direto(ups_1, row_1['ID'])
                     df.at[idx_1, 'Fotos'] = novos_caminhos
                     df.to_csv(DATA_FILE, index=False)
-                    st.success("Atualizado!")
+                    st.success("Fotos guardadas com sucesso!")
                     st.rerun()
                 
                 if novo_nome_1 != row_1['Artigo'] or novo_preco_1 != row_1['Preço (€)']:
@@ -170,17 +155,17 @@ with aba1:
                     
                     c_up2, c_nom2, c_pre2 = st.columns([1.2, 1.3, 1])
                     with c_up2:
-                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_2['ID']}")
+                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']}", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key=f"up_{row_2['ID']}")
                     with c_nom2:
                         novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']), key=f"n_{row_2['ID']}")
                     with c_pre2:
                         novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), key=f"p_{row_2['ID']}", step=5.0)
                     
                     if ups_2:
-                        novos_caminhos2 = guardar_fotos_upload(ups_2, row_2['ID'])
+                        novos_caminhos2 = guardar_fotos_direto(ups_2, row_2['ID'])
                         df.at[idx_2, 'Fotos'] = novos_caminhos2
                         df.to_csv(DATA_FILE, index=False)
-                        st.success("Atualizado!")
+                        st.success("Fotos guardadas com sucesso!")
                         st.rerun()
                     
                     if novo_nome_2 != row_2['Artigo'] or novo_preco_2 != row_2['Preço (€)']:
@@ -230,13 +215,13 @@ with aba3:
         n_ano = st.text_input("Ano")
         n_preco = st.number_input("Preço (€)", value=50.0)
         n_notas = st.text_area("Notas")
-        n_fotos = st.file_uploader("Fotos (Max 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
+        n_fotos = st.file_uploader("Fotos (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
         
         if st.form_submit_button("Guardar"):
             novo_id_temp = int(df["ID"].max() + 1) if not df.empty else 1
-            novos_caminhos_novo = []
+            novos_caminhos_novo = ""
             if n_fotos:
-                novos_caminhos_novo = guardar_fotos_upload(n_fotos, f"novo_{novo_id_temp}")
+                novos_caminhos_novo = guardar_fotos_direto(n_fotos, f"novo_{novo_id_temp}")
             
             novo_registo = pd.DataFrame([{
                 "ID": novo_id_temp,
