@@ -79,7 +79,7 @@ def carregar_dados():
 df = carregar_dados()
 
 st.title("📦 Inventário de Colecionismo Vintage")
-st.markdown("Gestão de espólio, fotografias seguras, anúncios guardados e catálogo PDF.")
+st.markdown("Gestão de espólio, fotografias seguras, anúncios guardados e catálogo PDF profissional.")
 
 aba1, aba2, aba3, aba4 = st.tabs(["🖼️ Catálogo & Edição", "📢 Anúncios Guardados", "➕ Novo Artigo", "📄 Catálogo PDF"])
 
@@ -185,18 +185,18 @@ with aba3:
             st.rerun()
 
 with aba4:
-    st.subheader("📄 Gerador de Catálogo PDF")
+    st.subheader("📄 Gerador de Catálogo PDF Profissional para Venda")
     df_venda = df[df["Selecionado para Venda"] == True]
-    st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
+    st.write(f"Artigos incluídos no catálogo atual para venda: **{len(df_venda)}**")
     
-    if st.button("Criar Ficheiro PDF"):
+    if st.button("Criar Catálogo PDF com Fotografias"):
         try:
             class PDF(FPDF):
                 def header(self):
-                    self.set_font("Arial", "B", 14)
-                    self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
-                    self.set_font("Arial", "I", 9)
-                    self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
+                    self.set_font("Arial", "B", 16)
+                    self.cell(0, 10, "CATALOGO DE COLECONISMO VINTAGE", 0, 1, "C")
+                    self.set_font("Arial", "I", 10)
+                    self.cell(0, 6, "Pecas Exclusivas - Conservacao Rigorosa em Adega Climatizada (Agualva-Cacem)", 0, 1, "C")
                     self.ln(5)
                 def footer(self):
                     self.set_y(-15)
@@ -208,23 +208,53 @@ with aba4:
             pdf.set_font("Arial", "", 10)
             
             for idx, row in df_venda.iterrows():
-                pdf.set_font("Arial", "B", 11)
-                pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preço (€)']} EUR", 0, 1)
+                # Obter a primeira fotografia de cada artigo
+                fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
+                primeira_foto = fotos[0] if fotos and os.path.exists(fotos[0]) else None
+                
+                # Registar posição inicial do bloco do artigo
+                y_inicio = pdf.get_y()
+                if y_inicio > 240: # Se estiver perto do fim da página, cria nova página
+                    pdf.add_page()
+                    y_inicio = pdf.get_y()
+                
+                # Inserir fotografia à esquerda (largura 30mm) se existir
+                if primeira_foto:
+                    try:
+                        pdf.image(primeira_foto, x=10, y=y_inicio, w=30)
+                    except:
+                        pass
+                
+                # Definir texto descritivo à direita da foto (posição X = 45)
+                pdf.set_x(45)
+                pdf.set_font("Arial", "B", 12)
+                pdf.cell(0, 7, f"{row['Artigo']} ({row['Ano']})", 0, 1)
+                
+                pdf.set_x(45)
+                pdf.set_font("Arial", "B", 10)
+                pdf.set_text_color(180, 0, 0) # Destacar o preço em tom forte
+                pdf.cell(0, 6, f"Preco: {row['Preço (€)']} EUR | Origem: {row['Origem']}", 0, 1)
+                
+                pdf.set_text_color(0, 0, 0) # Repor cor normal
+                pdf.set_x(45)
                 pdf.set_font("Arial", "", 9)
-                pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
-                pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
-                pdf.ln(4)
+                pdf.multi_cell(0, 5, f"Detalhes: {row['Notas']}")
+                
+                pdf.ln(8) # Espaço elegante entre artigos
+                pdf.set_draw_color(200, 200, 200)
+                pdf.line(10, pdf.get_y(), 200, pdf.get_y()) # Linha divisória subtil
+                pdf.ln(5)
             
             st.session_state['pdf_bytes'] = bytes(pdf.output())
-            st.success("PDF criado com sucesso! Já pode descarregar abaixo.")
+            st.success("Catálogo PDF profissional gerado com sucesso!")
         except Exception as e:
-            st.error(f"Erro ao criar PDF: {e}")
+            st.error(f"Erro ao gerar PDF: {e}")
 
     if 'pdf_bytes' in st.session_state:
         st.download_button(
-            label="Descarregar Catálogo PDF",
+            label="Descarregar Catálogo PDF para Venda",
             data=st.session_state['pdf_bytes'],
-            file_name="catalogo_colecionismo_vintage.pdf",
+            file_name="catalogo_venda_colecionismo.pdf",
             mime="application/pdf",
             key="download_pdf_btn"
         )
