@@ -148,4 +148,62 @@ with aba2:
     else:
         for index, row in df.iterrows():
             with st.expander(f"📋 Anúncio: {row['Artigo']} ({row['Preço (€)']}€)"):
-                texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"
+                texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
+                st.text_input("Copiar Texto para Plataforma:", value=texto_mostrar, key=f"copia_{row['ID']}")
+
+with aba3:
+    st.subheader("➕ Adicionar Novo Artigo")
+    with st.form("form_novo_artigo", clear_on_submit=True):
+        n_artigo = st.text_input("Título / Nome do Artigo")
+        c1, c2 = st.columns(2)
+        with c1:
+            n_origem = st.text_input("Origem (Ex: Holanda)")
+            n_ano = st.text_input("Ano (Ex: c. 1974)")
+        with c2:
+            n_preco = st.number_input("Preço (€)", value=50.0, step=5.0)
+        
+        n_notas = st.text_area("Notas / Descrição")
+        anuncio_novo_padrao = "Peça de Colecionismo Histórico - Estojo Expositor Vintage\n\nMagnífica peça de memorabilia e design industrial retro, destinada a colecionadores.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+        n_anuncio = st.text_area("Texto do Anúncio Seguro", value=anuncio_novo_padrao, height=140)
+        n_fotos = st.file_uploader("Fotografias (Até 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
+        
+        submitted = st.form_submit_button("Criar Artigo")
+        if submitted:
+            novo_id = int(df["ID"].max() + 1) if not df.empty else 1
+            caminhos_novos = ""
+            if n_fotos:
+                caminhos_novos = guardar_fotos(n_fotos, novo_id)
+            
+            novo_registo = pd.DataFrame([{
+                "ID": novo_id, "Artigo": str(n_artigo), "Origem": str(n_origem),
+                "Ano": str(n_ano), "Preço (€)": float(n_preco), "Selecionado para Venda": True,
+                "Notas": str(n_notas), "Fotos": str(caminhos_novos), "Anuncio": str(n_anuncio)
+            }])
+            df = pd.concat([df, novo_registo], ignore_index=True)
+            df.to_csv(DATA_FILE, index=False)
+            st.success("Artigo e anúncio criados com sucesso!")
+            st.rerun()
+
+with aba4:
+    st.subheader("📄 Gerador de Catálogo PDF")
+    df_venda = df[df["Selecionado para Venda"] == True]
+    st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
+    
+    class PDF(FPDF):
+        def header(self):
+            self.set_font("Arial", "B", 14)
+            self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
+            self.set_font("Arial", "I", 9)
+            self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
+            self.ln(5)
+        def footer(self):
+            self.set_y(-15)
+            self.set_font("Arial", "I", 8)
+            self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
+
+    pdf = PDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "", 10)
+    
+    for idx, row in df_venda.iterrows():
+        pdf.set_font("Arial", "B", 11)
