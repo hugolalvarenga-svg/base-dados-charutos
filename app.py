@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from PIL import Image, ImageOps
+import base64
 
 # Configuração da página
 st.set_page_config(page_title="Base de Dados de Caixas de Charutos Vintage", page_icon="📦", layout="wide")
@@ -32,6 +33,14 @@ def process_uploaded_image(uploaded_file):
     except Exception as e:
         st.error(f"Erro ao processar imagem: {e}")
         return None
+
+def imagem_para_base64(caminho):
+    try:
+        with open(caminho, "rb") as img_file:
+            encoded = base64.b64encode(img_file.read()).decode()
+        return f"data:image/jpeg;base64,{encoded}"
+    except:
+        return ""
 
 def carregar_dados():
     if os.path.exists(DATA_FILE):
@@ -79,18 +88,19 @@ with aba1:
             with col_a:
                 st.markdown(f"**{row_1['Artigo']}**")
                 
-                # Fotografias lado a lado em miniatura compacta (largura 70px)
+                # Fotografias lado a lado em bloco HTML Flexbox (força horizontal)
                 fotos_1 = [f.strip() for f in str(row_1['Fotos']).split(";") if f.strip() != ""]
                 if fotos_1:
-                    cols_f = st.columns(4)
-                    for f_idx, f_path in enumerate(fotos_1):
+                    html_imgs = '<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px;">'
+                    for f_path in fotos_1:
                         if os.path.exists(f_path):
-                            with cols_f[f_idx]:
-                                st.image(f_path, width=70)
+                            b64 = imagem_para_base64(f_path)
+                            html_imgs += f'<img src="{b64}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
+                    html_imgs += '</div>'
+                    st.markdown(html_imgs, unsafe_allow_html=True)
                 else:
                     st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                 
-                # Upload compacto
                 ups_1 = st.file_uploader(f"Fotos (Max 4) ID {row_1['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
                 if ups_1:
                     if len(ups_1) > 4:
@@ -139,11 +149,13 @@ with aba1:
                     
                     fotos_2 = [f.strip() for f in str(row_2['Fotos']).split(";") if f.strip() != ""]
                     if fotos_2:
-                        cols_f2 = st.columns(4)
-                        for f_idx, f_path in enumerate(fotos_2):
+                        html_imgs2 = '<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px;">'
+                        for f_path in fotos_2:
                             if os.path.exists(f_path):
-                                with cols_f2[f_idx]:
-                                    st.image(f_path, width=70)
+                                b64 = imagem_para_base64(f_path)
+                                html_imgs2 += f'<img src="{b64}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
+                        html_imgs2 += '</div>'
+                        st.markdown(html_imgs2, unsafe_allow_html=True)
                     else:
                         st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                     
