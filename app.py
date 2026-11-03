@@ -149,7 +149,7 @@ with aba2:
         for index, row in df.iterrows():
             with st.expander(f"📋 Anúncio: {row['Artigo']} ({row['Preço (€)']}€)"):
                 texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
-                st.text_area("Copiar Texto para Plataforma:", value=texto_mostrar, height=140, key=f"copia_{row['ID']}")
+                st.text_input("Copiar Texto para Plataforma:", value=texto_mostrar, key=f"copia_{row['ID']}")
 
 with aba3:
     st.subheader("➕ Adicionar Novo Artigo")
@@ -214,13 +214,12 @@ with aba4:
             pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
             pdf.ln(4)
         
-        # Correção compatível com fpdf2 para gerar PDF em memória
         pdf_output = pdf.output()
         if isinstance(pdf_output, str):
             pdf_output = pdf_output.encode('latin1')
         
         st.download_button(
-            label="📥 Descarregar PDF",
+            label="Descarregar PDF",
             data=pdf_output,
             file_name="catalogo_colecionismo_vintage.pdf",
             mime="application/pdf"
