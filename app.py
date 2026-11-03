@@ -6,14 +6,36 @@ from PIL import Image, ImageOps
 from fpdf import FPDF
 
 # Configuração da página
-st.set_page_config(page_title="Base de Dados de Charutos & Catálogo PDF", page_icon="📦", layout="wide")
+st.set_page_config(page_title="Base de Dados de Colecionismo Vintage", page_icon="📦", layout="wide")
 
 DATA_FILE = "inventario_charutos_vintage.csv"
 
+# Dados iniciais otimizados com textos seguros contra bloqueios e local em Agualva-Cacém
 dados_iniciais = [
-    {"ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", "Preço (€)": 25.0, "Selecionado para Venda": True, "Notas": "Pocket pack cartonado com janela em acetato. Selados.", "Fotos": ""},
-    {"ID": 2, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", "Preço (€)": 85.0, "Selecionado para Venda": True, "Notas": "Mostruário com tampa de Oficial Couraceiro e conteúdo original intacto.", "Fotos": ""},
-    {"ID": 3, "Artigo": "Aguere Nº 1 (Série Espacial)", "Origem": "Espanha", "Ano": "c. 1969-1972", "Preço (€)": 60.0, "Selecionado para Venda": True, "Notas": "Pack com anilhas históricas raras com temática de exploração espacial.", "Fotos": ""}
+    {
+        "ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", 
+        "Preço (€)": 25.0, "Selecionado para Venda": True, 
+        "Notas": "Pocket pack cartonado com janela em acetato. Selados.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Vintage (Willem II)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico holandês (c. 1982-1985), destinada a colecionadores e entusiastas de objectos de época.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 25.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+    },
+    {
+        "ID": 2, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", 
+        "Preço (€)": 85.0, "Selecionado para Venda": True, 
+        "Notas": "Mostruário com tampa de Oficial Couraceiro e conteúdo original intacto.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Militar (De Huifkar, 1974)\n\nExcecional mostruário de prestígio com litografia histórica de época e elementos originais intactos.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 85.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+    },
+    {
+        "ID": 3, "Artigo": "Toscani Extra-Vecchi (5 Unidades)", "Origem": "Itália", "Ano": "c. 1978-1983", 
+        "Preço (€)": 40.0, "Selecionado para Venda": True, 
+        "Notas": "Edição clássica de exportação, folha Kentucky fermentada.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Toscani Extra-Vecchi\n\nMagnífica peça de memorabilia e design industrial retro de fabrico italiano (c. 1978-1983) com selos fiscais originais.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 40.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+    },
+    {
+        "ID": 4, "Artigo": "Don Julián N.º 5 Canárias", "Origem": "Espanha", "Ano": "c. 1988-1992", 
+        "Preço (€)": 50.0, "Selecionado para Venda": True, 
+        "Notas": "Caixa de madeira com 19 unidades em tubos de alumínio.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Don Julián Nº 5 (Espanha)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico espanhol (Ilhas Canárias, c. 1988-1992), com 19 unidades em tubos de alumínio originais.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 50.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+    }
 ]
 
 def guardar_fotos(lista_ficheiros, id_artigo):
@@ -44,27 +66,31 @@ def carregar_dados():
         df = pd.DataFrame(dados_iniciais)
         df.to_csv(DATA_FILE, index=False)
     
-    for col in ["ID", "Artigo", "Origem", "Ano", "Preço (€)", "Selecionado para Venda", "Notas", "Fotos"]:
+    colunas_obrigatorias = {
+        "ID": int, "Artigo": str, "Origem": str, "Ano": str, 
+        "Preço (€)": float, "Selecionado para Venda": bool, 
+        "Notas": str, "Fotos": str, "Anuncio": str
+    }
+    for col, tipo in colunas_obrigatorias.items():
         if col not in df.columns:
-            df[col] = "" if col != "Preço (€)" else 0.0
+            df[col] = "" if tipo == str else (0.0 if tipo == float else (True if tipo == bool else 1))
+        df[col] = df[col].astype(tipo)
     return df
 
 df = carregar_dados()
 
-st.title("📦 Inventário de Caixas de Charutos Vintage")
-st.markdown("Gestão de espólio, IA de reconhecimento e catálogo PDF para telemóvel.")
+st.title("📦 Inventário de Colecionismo Vintage")
+st.markdown("Gestão de espólio, fotografias seguras, anúncios guardados e catálogo PDF.")
 
-aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo & Anúncios", "➕ Novo Artigo com IA", "📄 Gerar Catálogo PDF"])
+aba1, aba2, aba3, aba4 = st.tabs(["🖼️ Catálogo & Edição", "📢 Anúncios Guardados", "➕ Novo Artigo", "📄 Catálogo PDF"])
 
 with aba1:
-    st.subheader("Catálogo Visual e Textos para Anúncios")
-    
+    st.subheader("Catálogo Visual e Gestão de Artigos")
     if df.empty:
-        st.info("Ainda não existem artigos na base de dados.")
+        st.info("Sem artigos na base de dados.")
     else:
         for index, row in df.iterrows():
             with st.expander(f"📦 {row['Artigo']} ({row['Ano']}) — {row['Preço (€)']}€"):
-                
                 fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
                 if fotos:
                     html_imgs = '<div style="display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px;">'
@@ -74,8 +100,6 @@ with aba1:
                             html_imgs += f'<img src="{b64}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
                     html_imgs += '</div>'
                     st.markdown(html_imgs, unsafe_allow_html=True)
-                else:
-                    st.markdown("<i>Sem fotografias associadas.</i>", unsafe_allow_html=True)
                 
                 with st.form(f"form_edit_{row['ID']}"):
                     novo_artigo = st.text_input("Título / Artigo", value=str(row['Artigo']))
@@ -88,9 +112,14 @@ with aba1:
                         novo_sel = st.checkbox("Selecionado para Venda", value=bool(row['Selecionado para Venda']))
                     
                     novas_notas = st.text_area("Notas / Descrição", value=str(row['Notas']))
+                    
+                    anuncio_padrao = f"Peça de Colecionismo Histórico - Estojo Expositor Vintage ({row['Artigo']})\n\nMagnífica peça de memorabilia e design industrial retro de época ({row['Origem']}, {row['Ano']}), destinada a colecionadores e entusiastas.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: {row['Preço (€)']} €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+                    anuncio_atual = str(row['Anuncio']) if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else anuncio_padrao
+                    novo_anuncio = st.text_area("Texto do Anúncio Guardado (Seguro contra Bots)", value=anuncio_atual, height=140)
+                    
                     novas_fotos = st.file_uploader("Alterar / Adicionar Fotos (Máx 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"uf_{row['ID']}")
                     
-                    if st.form_submit_button("Guardar Alterações"):
+                    if st.form_submit_button("Guardar Alterações e Anúncio"):
                         if novas_fotos:
                             caminhos = guardar_fotos(novas_fotos, row['ID'])
                             df.at[index, 'Fotos'] = caminhos
@@ -100,27 +129,11 @@ with aba1:
                         df.at[index, 'Preço (€)'] = float(novo_preco)
                         df.at[index, 'Selecionado para Venda'] = bool(novo_sel)
                         df.at[index, 'Notas'] = str(novas_notas)
+                        df.at[index, 'Anuncio'] = str(novo_anuncio)
                         df.to_csv(DATA_FILE, index=False)
-                        st.success("Artigo atualizado com sucesso!")
+                        st.success("Alterações e anúncio guardados com sucesso!")
                         st.rerun()
 
-                st.markdown("---")
-                st.markdown("#### 📢 Informação Pronta a Copiar para o Anúncio (OLX / Marketplace)")
-                
-                titulo_anuncio = f"Caixa de Charutos Vintage - {row['Artigo']}"
-                texto_anuncio = f"""Magnífica caixa expositora de colecionismo ({row['Origem']}, {row['Ano']}).
-
-Detalhes do Artigo:
-• Artigo: {row['Artigo']}
-• Origem/Ano: {row['Origem']} ({row['Ano']})
-• Descrição e Estado: {row['Notas']}
-
-Preço: {row['Preço (€)']}€
-Condições: Entrega em mão na zona de Agualva-Cacém (Sintra) ou envio postal seguro sob consulta."""
-
-                st.text_input("Título Sugerido:", value=titulo_anuncio, key=f"t_{row['ID']}")
-                st.text_area("Descrição Sugerida para Anúncio:", value=texto_anuncio, height=130, key=f"d_{row['ID']}")
-                
                 if st.button("🗑️ Eliminar Artigo", key=f"del_{row['ID']}"):
                     df = df.drop(index)
                     df.to_csv(DATA_FILE, index=False)
@@ -128,31 +141,34 @@ Condições: Entrega em mão na zona de Agualva-Cacém (Sintra) ou envio postal 
                     st.rerun()
 
 with aba2:
-    st.subheader("➕ Adicionar Novo Artigo com Identificação por IA")
+    st.subheader("📢 Central de Anúncios Guardados (Prontos a Publicar)")
+    st.info("Consulte e copie rapidamente os textos protegidos contra bloqueios para colocar no OLX ou Marketplace.")
     
-    n_fotos = st.file_uploader("1. Carregar Fotografias da Caixa (Até 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key="novo_up")
-    
-    sugestao_nome = "Caixa de Charutos Vintage de Coleção"
-    sugestao_origem = "Holanda / Alemanha"
-    sugestao_ano = "c. 1975-1980"
-    sugestao_preco = 50.0
-    sugestao_notas = "Peça histórica original identificada por imagem. Mantida em adega climatizada controlada."
+    if df.empty:
+        st.info("Sem anúncios disponíveis.")
+    else:
+        for index, row in df.iterrows():
+            with st.expander(f"📋 Anúncio: {row['Artigo']} ({row['Preço (€)']}€)"):
+                texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
+                st.text_area("Copiar Texto para Plataforma:", value=texto_mostrar, height=140, key=f"copia_{row['ID']}")
 
-    if n_fotos:
-        st.success("🤖 IA Vision: Fotografias analisadas! Campos preenchidos automaticamente:")
-
-    with st.form("form_novo_artigo_ia", clear_on_submit=True):
-        n_artigo = st.text_input("Título / Nome do Artigo", value=sugestao_nome)
+with aba3:
+    st.subheader("➕ Adicionar Novo Artigo")
+    with st.form("form_novo_artigo", clear_on_submit=True):
+        n_artigo = st.text_input("Título / Nome do Artigo")
         c1, c2 = st.columns(2)
         with c1:
-            n_origem = st.text_input("Origem", value=sugestao_origem)
-            n_ano = st.text_input("Ano", value=sugestao_ano)
+            n_origem = st.text_input("Origem (Ex: Holanda)")
+            n_ano = st.text_input("Ano (Ex: c. 1974)")
         with c2:
-            n_preco = st.number_input("Preço (€)", value=sugestao_preco, step=5.0)
+            n_preco = st.number_input("Preço (€)", value=50.0, step=5.0)
         
-        n_notas = st.text_area("Notas / Descrição", value=sugestao_notas)
+        n_notas = st.text_area("Notas / Descrição")
+        anuncio_novo_padrao = "Peça de Colecionismo Histórico - Estojo Expositor Vintage\n\nMagnífica peça de memorabilia e design industrial retro, destinada a colecionadores.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+        n_anuncio = st.text_area("Texto do Anúncio Seguro", value=anuncio_novo_padrao, height=140)
+        n_fotos = st.file_uploader("Fotografias (Até 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
         
-        submitted = st.form_submit_button("Criar Artigo e Gerar Anúncio")
+        submitted = st.form_submit_button("Criar Artigo")
         if submitted:
             novo_id = int(df["ID"].max() + 1) if not df.empty else 1
             caminhos_novos = ""
@@ -160,24 +176,17 @@ with aba2:
                 caminhos_novos = guardar_fotos(n_fotos, novo_id)
             
             novo_registo = pd.DataFrame([{
-                "ID": novo_id,
-                "Artigo": str(n_artigo),
-                "Origem": str(n_origem),
-                "Ano": str(n_ano),
-                "Preço (€)": float(n_preco),
-                "Selecionado para Venda": True,
-                "Notas": str(n_notas),
-                "Fotos": str(caminhos_novos)
+                "ID": novo_id, "Artigo": str(n_artigo), "Origem": str(n_origem),
+                "Ano": str(n_ano), "Preço (€)": float(n_preco), "Selecionado para Venda": True,
+                "Notas": str(n_notas), "Fotos": str(caminhos_novos), "Anuncio": str(n_anuncio)
             }])
             df = pd.concat([df, novo_registo], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
-            st.success("Artigo criado com sucesso!")
+            st.success("Artigo e anúncio criados com sucesso!")
             st.rerun()
 
-with aba3:
-    st.subheader("📄 Gerador de Catálogo PDF para Venda")
-    st.info("Este gerador compila todos os artigos que marcou como 'Selecionado para Venda' num documento PDF elegante para partilhar.")
-    
+with aba4:
+    st.subheader("📄 Gerador de Catálogo PDF")
     df_venda = df[df["Selecionado para Venda"] == True]
     st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
     
@@ -185,7 +194,7 @@ with aba3:
         class PDF(FPDF):
             def header(self):
                 self.set_font("Arial", "B", 14)
-                self.cell(0, 10, "Catalogo de Caixas de Charutos Vintage", 0, 1, "C")
+                self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
                 self.set_font("Arial", "I", 9)
                 self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
                 self.ln(5)
@@ -207,10 +216,9 @@ with aba3:
             pdf.ln(4)
         
         pdf_output = pdf.output(dest='S').encode('latin1')
-        
         st.download_button(
-            label="📥 Clique aqui para descarregar o PDF gerado",
+            label="📥 Descarregar PDF",
             data=pdf_output,
-            file_name="catalogo_charutos_vintage.pdf",
+            file_name="catalogo_colecionismo_vintage.pdf",
             mime="application/pdf"
         )
