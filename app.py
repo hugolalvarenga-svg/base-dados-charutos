@@ -189,38 +189,38 @@ with aba4:
     df_venda = df[df["Selecionado para Venda"] == True]
     st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
     
-    if st.button("Gerar e Descarregar Catálogo PDF"):
-        class PDF(FPDF):
-            def header(self):
-                self.set_font("Arial", "B", 14)
-                self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
-                self.set_font("Arial", "I", 9)
-                self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
-                self.ln(5)
-            def footer(self):
-                self.set_y(-15)
-                self.set_font("Arial", "I", 8)
-                self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
+    class PDF(FPDF):
+        def header(self):
+            self.set_font("Arial", "B", 14)
+            self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
+            self.set_font("Arial", "I", 9)
+            self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
+            self.ln(5)
+        def footer(self):
+            self.set_y(-15)
+            self.set_font("Arial", "I", 8)
+            self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
 
-        pdf = PDF()
-        pdf.add_page()
-        pdf.set_font("Arial", "", 10)
-        
-        for idx, row in df_venda.iterrows():
-            pdf.set_font("Arial", "B", 11)
-            pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preço (€)']} EUR", 0, 1)
-            pdf.set_font("Arial", "", 9)
-            pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
-            pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
-            pdf.ln(4)
-        
-        pdf_output = pdf.output()
-        if isinstance(pdf_output, str):
-            pdf_output = pdf_output.encode('latin1')
-        
-        st.download_button(
-            label="Descarregar PDF",
-            data=pdf_output,
-            file_name="catalogo_colecionismo_vintage.pdf",
-            mime="application/pdf"
-        )
+    pdf = PDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "", 10)
+    
+    for idx, row in df_venda.iterrows():
+        pdf.set_font("Arial", "B", 11)
+        pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preço (€)']} EUR", 0, 1)
+        pdf.set_font("Arial", "", 9)
+        pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
+        pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
+        pdf.ln(4)
+    
+    pdf_bytes = pdf.output(dest='S')
+    if isinstance(pdf_bytes, str):
+        pdf_bytes = pdf_bytes.encode('latin1')
+
+    st.download_button(
+        label="Descarregar Catálogo PDF",
+        data=pdf_bytes,
+        file_name="catalogo_colecionismo_vintage.pdf",
+        mime="application/pdf",
+        key="download_pdf_btn"
+    )
