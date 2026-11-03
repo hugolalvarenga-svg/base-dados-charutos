@@ -164,7 +164,7 @@ with aba3:
         
         n_notas = st.text_area("Notas / Descrição")
         anuncio_novo_padrao = "Peça de Colecionismo Histórico - Estojo Expositor Vintage\n\nMagnífica peça de memorabilia e design industrial retro, destinada a colecionadores.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
-        n_anuncio = st.text_area("Texto do Anúncio Seguro", value=n_anuncio_novo_padrao if 'anuncio_novo_padrao' in locals() else "Peça de Colecionismo Histórico", height=140)
+        n_anuncio = st.text_area("Texto do Anúncio Seguro", value=anuncio_novo_padrao, height=140)
         n_fotos = st.file_uploader("Fotografias (Até 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
         
         submitted = st.form_submit_button("Criar Artigo")
@@ -216,11 +216,9 @@ with aba4:
             pdf.set_font("Arial", "", 10)
             
             for index, (idx, row) in enumerate(df_venda.iterrows(), start=1):
-                # Verificar espaço na página
                 if pdf.get_y() > 220:
                     pdf.add_page()
                 
-                # Cabeçalho do Lote com Preço em destaque
                 pdf.set_font("Arial", "B", 11)
                 pdf.cell(150, 7, f"{index}. {row['Artigo']}", 0, 0)
                 pdf.set_font("Arial", "B", 11)
@@ -228,25 +226,20 @@ with aba4:
                 pdf.cell(30, 7, f"{row['Preço (€)']} EUR", 0, 1, "R")
                 pdf.set_text_color(0, 0, 0)
                 
-                # Detalhes técnicos
                 pdf.set_font("Arial", "I", 9)
                 pdf.cell(0, 5, f"Origem: {row['Origem']} | Ano: {row['Ano']}", 0, 1)
                 pdf.ln(2)
                 
-                # Fotografias e Descrição lado a lado
                 fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
                 y_antes = pdf.get_y()
                 
                 if fotos and os.path.exists(fotos[0]):
                     try:
-                        # Inserir imagem à esquerda
                         pdf.image(fotos[0], x=10, y=y_antes, w=45)
-                        # Descrição à direita da imagem
                         pdf.set_xy(60, y_antes)
                         pdf.set_font("Arial", "", 9)
                         pdf.multi_cell(140, 5, f"Detalhes / Conservacao: {row['Notas']}")
                         
-                        # Ajustar Y para o final da imagem ou do texto, o que for maior
                         y_depois = max(pdf.get_y(), y_antes + 35)
                         pdf.set_y(y_depois + 4)
                     except:
@@ -258,7 +251,6 @@ with aba4:
                     pdf.multi_cell(0, 5, f"Detalhes / Conservacao: {row['Notas']}")
                     pdf.ln(4)
                 
-                # Linha separadora subtil entre artigos
                 pdf.set_draw_color(220, 220, 220)
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
                 pdf.ln(6)
