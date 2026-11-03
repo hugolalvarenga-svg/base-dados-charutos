@@ -189,21 +189,42 @@ with aba4:
     df_venda = df[df["Selecionado para Venda"] == True]
     st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
     
-    class PDF(FPDF):
-        def header(self):
-            self.set_font("Arial", "B", 14)
-            self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
-            self.set_font("Arial", "I", 9)
-            self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
-            self.ln(5)
-        def footer(self):
-            self.set_y(-15)
-            self.set_font("Arial", "I", 8)
-            self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
+    if st.button("Criar Ficheiro PDF"):
+        try:
+            class PDF(FPDF):
+                def header(self):
+                    self.set_font("Arial", "B", 14)
+                    self.cell(0, 10, "Catalogo de Colecionismo Vintage", 0, 1, "C")
+                    self.set_font("Arial", "I", 9)
+                    self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
+                    self.ln(5)
+                def footer(self):
+                    self.set_y(-15)
+                    self.set_font("Arial", "I", 8)
+                    self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
 
-    pdf = PDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "", 10)
-    
-    for idx, row in df_venda.iterrows():
-        pdf.set_font("Arial", "B", 11)
+            pdf = PDF()
+            pdf.add_page()
+            pdf.set_font("Arial", "", 10)
+            
+            for idx, row in df_venda.iterrows():
+                pdf.set_font("Arial", "B", 11)
+                pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preço (€)']} EUR", 0, 1)
+                pdf.set_font("Arial", "", 9)
+                pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
+                pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
+                pdf.ln(4)
+            
+            st.session_state['pdf_bytes'] = bytes(pdf.output())
+            st.success("PDF criado com sucesso! Já pode descarregar abaixo.")
+        except Exception as e:
+            st.error(f"Erro ao criar PDF: {e}")
+
+    if 'pdf_bytes' in st.session_state:
+        st.download_button(
+            label="Descarregar Catálogo PDF",
+            data=st.session_state['pdf_bytes'],
+            file_name="catalogo_colecionismo_vintage.pdf",
+            mime="application/pdf",
+            key="download_pdf_btn"
+        )
