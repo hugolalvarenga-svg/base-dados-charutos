@@ -10,7 +10,6 @@ st.set_page_config(page_title="Base de Dados de Colecionismo Vintage", page_icon
 
 DATA_FILE = "inventario_charutos_vintage.csv"
 
-# Dados iniciais otimizados com textos seguros contra bloqueios e local em Agualva-Cacém
 dados_iniciais = [
     {
         "ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", 
@@ -215,7 +214,11 @@ with aba4:
             pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
             pdf.ln(4)
         
-        pdf_output = pdf.output(dest='S').encode('latin1')
+        # Correção compatível com fpdf2 para gerar PDF em memória
+        pdf_output = pdf.output()
+        if isinstance(pdf_output, str):
+            pdf_output = pdf_output.encode('latin1')
+        
         st.download_button(
             label="📥 Descarregar PDF",
             data=pdf_output,
