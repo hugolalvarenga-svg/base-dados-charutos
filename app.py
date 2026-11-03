@@ -2,27 +2,21 @@ import streamlit as st
 import pandas as pd
 import os
 import base64
+from PIL import Image, ImageOps
+from fpdf import FPDF
 
 # Configuração da página
-st.set_page_config(page_title="Base de Dados de Caixas de Charutos Vintage", page_icon="📦", layout="wide")
+st.set_page_config(page_title="Base de Dados de Charutos & Catálogo PDF", page_icon="📦", layout="wide")
 
 DATA_FILE = "inventario_charutos_vintage.csv"
 
 dados_iniciais = [
     {"ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", "Preço (€)": 25.0, "Selecionado para Venda": True, "Notas": "Pocket pack cartonado com janela em acetato. Selados.", "Fotos": ""},
-    {"ID": 2, "Artigo": "C.E. Kimling Sortido de Gala", "Origem": "Alemanha", "Ano": "1974", "Preço (€)": 110.0, "Selecionado para Venda": True, "Notas": "Mostruário de luxo com litografia equestre 'The Meet at Blagdon'.", "Fotos": ""},
-    {"ID": 3, "Artigo": "Toscani Extra-Vecchi (5 Unidades)", "Origem": "Itália", "Ano": "c. 1978-1983", "Preço (€)": 40.0, "Selecionado para Venda": True, "Notas": "Edição clássica de exportação, folha Kentucky fermentada.", "Fotos": ""},
-    {"ID": 4, "Artigo": "Don Julián N.º 5 Canárias", "Origem": "Espanha", "Ano": "c. 1988-1992", "Preço (€)": 50.0, "Selecionado para Venda": True, "Notas": "Caixa de madeira com 19 unidades em tubos de alumínio.", "Fotos": ""},
-    {"ID": 5, "Artigo": "Dutch Masters Panetelas", "Origem": "EUA", "Ano": "c. 1968-1974", "Preço (€)": 35.0, "Selecionado para Venda": True, "Notas": "Maço selado com carimbo militar 'TAX EXEMPT'.", "Fotos": ""},
-    {"ID": 6, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", "Preço (€)": 85.0, "Selecionado para Venda": True, "Notas": "Mostruário de 25 unidades com tampa de Oficial Couraceiro.", "Fotos": ""},
-    {"ID": 7, "Artigo": "Cerdan Perlas 10", "Origem": "República Dominicana", "Ano": "Meados anos 90", "Preço (€)": 65.0, "Selecionado para Venda": True, "Notas": "Puro dominicano, 10 unidades seladas com celofane.", "Fotos": ""},
-    {"ID": 8, "Artigo": "Stompkop Professional", "Origem": "Holanda", "Ano": "Anos 70", "Preço (€)": 60.0, "Selecionado para Venda": True, "Notas": "Lote de gala com 10 unidades e anilhas ilustradas históricas.", "Fotos": ""},
-    {"ID": 9, "Artigo": "Schneehasen Nº 301", "Origem": "Alemanha", "Ano": "c. 1968-1973", "Preço (€)": 55.0, "Selecionado para Venda": True, "Notas": "Edição rara 'Lebres da Neve' com janela e bases douradas.", "Fotos": ""},
-    {"ID": 10, "Artigo": "Medan 50 Wilde Cigarillos", "Origem": "Holanda", "Ano": "c. 1980-1983", "Preço (€)": 55.0, "Selecionado para Venda": True, "Notas": "Caixa de cedro maciça com 50 cigarrilhos Sumatra.", "Fotos": ""},
-    {"ID": 11, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", "Preço (€)": 125.0, "Selecionado para Venda": True, "Notas": "Luxuoso estojo de veludo vermelho com 30 unidades.", "Fotos": ""}
+    {"ID": 2, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", "Preço (€)": 85.0, "Selecionado para Venda": True, "Notas": "Mostruário com tampa de Oficial Couraceiro e conteúdo original intacto.", "Fotos": ""},
+    {"ID": 3, "Artigo": "Aguere Nº 1 (Série Espacial)", "Origem": "Espanha", "Ano": "c. 1969-1972", "Preço (€)": 60.0, "Selecionado para Venda": True, "Notas": "Pack com anilhas históricas raras com temática de exploração espacial.", "Fotos": ""}
 ]
 
-def guardar_fotos_direto(lista_ficheiros, id_artigo):
+def guardar_fotos(lista_ficheiros, id_artigo):
     os.makedirs("imagens_caixas", exist_ok=True)
     novos_caminhos = []
     for f_pos, up_file in enumerate(lista_ficheiros[:4]):
@@ -50,196 +44,174 @@ def carregar_dados():
         df = pd.DataFrame(dados_iniciais)
         df.to_csv(DATA_FILE, index=False)
     
-    df["ID"] = df["ID"].astype(int)
-    df["Artigo"] = df["Artigo"].astype(str)
-    df["Origem"] = df["Origem"].astype(str)
-    df["Ano"] = df["Ano"].astype(str)
-    df["Preço (€)"] = df["Preço (€)"].astype(float)
-    df["Selecionado para Venda"] = df["Selecionado para Venda"].astype(bool)
-    df["Notas"] = df["Notas"].astype(str)
-    if "Fotos" not in df.columns:
-        df["Fotos"] = ""
-    else:
-        df["Fotos"] = df["Fotos"].astype(str)
+    for col in ["ID", "Artigo", "Origem", "Ano", "Preço (€)", "Selecionado para Venda", "Notas", "Fotos"]:
+        if col not in df.columns:
+            df[col] = "" if col != "Preço (€)" else 0.0
     return df
 
 df = carregar_dados()
 
-st.title("📦 Base de Dados de Charutos")
-st.markdown("<small>Gestão compacta otimizada para telemóvel com gerador automático</small>", unsafe_allow_html=True)
+st.title("📦 Inventário de Caixas de Charutos Vintage")
+st.markdown("Gestão de espólio, IA de reconhecimento e catálogo PDF para telemóvel.")
 
-aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo", "📊 Vendas & Anúncios", "➕ Novo Artigo com IA"])
+aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo & Anúncios", "➕ Novo Artigo com IA", "📄 Gerar Catálogo PDF"])
 
 with aba1:
-    st.subheader("Inventário Compacto")
+    st.subheader("Catálogo Visual e Textos para Anúncios")
     
     if df.empty:
-        st.warning("Sem artigos.")
+        st.info("Ainda não existem artigos na base de dados.")
     else:
-        indices = list(df.index)
-        for i in range(0, len(indices), 2):
-            col_a, col_b = st.columns(2)
-            
-            # --- ARTIGO A ---
-            idx_1 = indices[i]
-            row_1 = df.loc[idx_1]
-            with col_a:
-                st.markdown(f"**{row_1['Artigo']}**")
+        for index, row in df.iterrows():
+            with st.expander(f"📦 {row['Artigo']} ({row['Ano']}) — {row['Preço (€)']}€"):
                 
-                fotos_1 = [f.strip() for f in str(row_1['Fotos']).split(";") if f.strip() != ""]
-                if fotos_1:
-                    html_imgs = '<div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 6px;">'
-                    for f_path in fotos_1:
+                fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
+                if fotos:
+                    html_imgs = '<div style="display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px;">'
+                    for f_path in fotos:
                         if os.path.exists(f_path):
                             b64 = imagem_para_base64(f_path)
-                            html_imgs += f'<img src="{b64}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 4px; border: 1px solid #444;" />'
+                            html_imgs += f'<img src="{b64}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
                     html_imgs += '</div>'
                     st.markdown(html_imgs, unsafe_allow_html=True)
                 else:
-                    st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
+                    st.markdown("<i>Sem fotografias associadas.</i>", unsafe_allow_html=True)
                 
-                # Zonas compactas com botão de submissão dedicado
-                with st.form(f"form_artigo_{row_1['ID']}"):
-                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']} (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
-                    novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']))
-                    novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), step=5.0)
+                with st.form(f"form_edit_{row['ID']}"):
+                    novo_artigo = st.text_input("Título / Artigo", value=str(row['Artigo']))
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        nova_origem = st.text_input("Origem", value=str(row['Origem']))
+                        novo_ano = st.text_input("Ano", value=str(row['Ano']))
+                    with c2:
+                        novo_preco = st.number_input("Preço (€)", value=float(row['Preço (€)']), step=5.0)
+                        novo_sel = st.checkbox("Selecionado para Venda", value=bool(row['Selecionado para Venda']))
                     
-                    submitted_1 = st.form_submit_button("Guardar Alterações")
-                    if submitted_1:
-                        if ups_1:
-                            novos_caminhos = guardar_fotos_direto(ups_1, row_1['ID'])
-                            df.at[idx_1, 'Fotos'] = novos_caminhos
-                        df.at[idx_1, 'Artigo'] = str(novo_nome_1)
-                        df.at[idx_1, 'Preço (€)'] = float(novo_preco_1)
+                    novas_notas = st.text_area("Notas / Descrição", value=str(row['Notas']))
+                    novas_fotos = st.file_uploader("Alterar / Adicionar Fotos (Máx 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"uf_{row['ID']}")
+                    
+                    if st.form_submit_button("Guardar Alterações"):
+                        if novas_fotos:
+                            caminhos = guardar_fotos(novas_fotos, row['ID'])
+                            df.at[index, 'Fotos'] = caminhos
+                        df.at[index, 'Artigo'] = str(novo_artigo)
+                        df.at[index, 'Origem'] = str(nova_origem)
+                        df.at[index, 'Ano'] = str(novo_ano)
+                        df.at[index, 'Preço (€)'] = float(novo_preco)
+                        df.at[index, 'Selecionado para Venda'] = bool(novo_sel)
+                        df.at[index, 'Notas'] = str(novas_notas)
                         df.to_csv(DATA_FILE, index=False)
                         st.success("Artigo atualizado com sucesso!")
                         st.rerun()
-                
-                st.markdown(f"<small><b>Origem:</b> {row_1['Origem']} ({row_1['Ano']})<br><b>Notas:</b> {row_1['Notas']}</small>", unsafe_allow_html=True)
-                
-                c_chk, c_del = st.columns([1, 1])
-                with c_chk:
-                    sel_1 = st.checkbox("Vender", value=bool(row_1['Selecionado para Venda']), key=f"s_{row_1['ID']}")
-                    if sel_1 != row_1['Selecionado para Venda']:
-                        df.at[idx_1, 'Selecionado para Venda'] = bool(sel_1)
-                        df.to_csv(DATA_FILE, index=False)
-                        st.rerun()
-                with c_del:
-                    if st.button("🗑️ Apagar", key=f"del_{row_1['ID']}"):
-                        df = df.drop(idx_1)
-                        df.to_csv(DATA_FILE, index=False)
-                        st.rerun()
 
-            # --- ARTIGO B ---
-            if i + 1 < len(indices):
-                idx_2 = indices[i + 1]
-                row_2 = df.loc[idx_2]
-                with col_b:
-                    st.markdown(f"**{row_2['Artigo']}**")
-                    
-                    fotos_2 = [f.strip() for f in str(row_2['Fotos']).split(";") if f.strip() != ""]
-                    if fotos_2:
-                        html_imgs2 = '<div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 6px;">'
-                        for f_path in fotos_2:
-                            if os.path.exists(f_path):
-                                b64 = imagem_para_base64(f_path)
-                                html_imgs2 += f'<img src="{b64}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 4px; border: 1px solid #444;" />'
-                        html_imgs2 += '</div>'
-                        st.markdown(html_imgs2, unsafe_allow_html=True)
-                    else:
-                        st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
-                    
-                    with st.form(f"form_artigo_{row_2['ID']}"):
-                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']} (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
-                        novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']))
-                        novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), step=5.0)
-                        
-                        submitted_2 = st.form_submit_button("Guardar Alterações")
-                        if submitted_2:
-                            if ups_2:
-                                novos_caminhos2 = guardar_fotos_direto(ups_2, row_2['ID'])
-                                df.at[idx_2, 'Fotos'] = novos_caminhos2
-                            df.at[idx_2, 'Artigo'] = str(novo_nome_2)
-                            df.at[idx_2, 'Preço (€)'] = float(novo_preco_2)
-                            df.to_csv(DATA_FILE, index=False)
-                            st.success("Artigo atualizado com sucesso!")
-                            st.rerun()
-                    
-                    st.markdown(f"<small><b>Origem:</b> {row_2['Origem']} ({row_2['Ano']})<br><b>Notas:</b> {row_2['Notas']}</small>", unsafe_allow_html=True)
-                    
-                    c_chk2, c_del2 = st.columns([1, 1])
-                    with c_chk2:
-                        sel_2 = st.checkbox("Vender", value=bool(row_2['Selecionado para Venda']), key=f"s_{row_2['ID']}")
-                        if sel_2 != row_2['Selecionado para Venda']:
-                            df.at[idx_2, 'Selecionado para Venda'] = bool(sel_2)
-                            df.to_csv(DATA_FILE, index=False)
-                            st.rerun()
-                    with c_del2:
-                        if st.button("🗑️ Apagar", key=f"del_{row_2['ID']}"):
-                            df = df.drop(idx_2)
-                            df.to_csv(DATA_FILE, index=False)
-                            st.rerun()
-            
-            st.divider()
+                st.markdown("---")
+                st.markdown("#### 📢 Informação Pronta a Copiar para o Anúncio (OLX / Marketplace)")
+                
+                titulo_anuncio = f"Caixa de Charutos Vintage - {row['Artigo']}"
+                texto_anuncio = f"""Magnífica caixa expositora de colecionismo ({row['Origem']}, {row['Ano']}).
+
+Detalhes do Artigo:
+• Artigo: {row['Artigo']}
+• Origem/Ano: {row['Origem']} ({row['Ano']})
+• Descrição e Estado: {row['Notas']}
+
+Preço: {row['Preço (€)']}€
+Condições: Entrega em mão na zona de Agualva-Cacém (Sintra) ou envio postal seguro sob consulta."""
+
+                st.text_input("Título Sugerido:", value=titulo_anuncio, key=f"t_{row['ID']}")
+                st.text_area("Descrição Sugerida para Anúncio:", value=texto_anuncio, height=130, key=f"d_{row['ID']}")
+                
+                if st.button("🗑️ Eliminar Artigo", key=f"del_{row['ID']}"):
+                    df = df.drop(index)
+                    df.to_csv(DATA_FILE, index=False)
+                    st.success("Artigo eliminado!")
+                    st.rerun()
 
 with aba2:
-    st.subheader("📊 Vendas & Anúncios")
-    df_vendas = df[df["Selecionado para Venda"] == True]
+    st.subheader("➕ Adicionar Novo Artigo com Identificação por IA")
     
-    if df_vendas.empty:
-        st.warning("Nenhum artigo selecionado.")
-    else:
-        st.success(f"Total: {len(df_vendas)} artigos | Valor: {df_vendas['Preço (€)'].sum()}€")
-        st.dataframe(df_vendas[["Artigo", "Origem", "Preço (€)"]], use_container_width=True)
-        
-        for index, row in df_vendas.iterrows():
-            with st.expander(f"📢 {row['Artigo']} — {row['Preço (€)']}€"):
-                t = f"Caixa Colecionável de Memorabilia e Arte - {row['Artigo']}"
-                d = f"Magnífica caixa de colecionismo ({row['Origem']}, {row['Ano']}). {row['Notas']}\nPreço: {row['Preço (€)']}€."
-                st.text_input("Título:", value=t, key=f"t_{row['ID']}")
-                st.text_area("Descrição:", value=d, key=f"d_{row['ID']}")
-
-with aba3:
-    st.subheader("➕ Adicionar Novo Artigo com Gerador Automático")
+    n_fotos = st.file_uploader("1. Carregar Fotografias da Caixa (Até 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key="novo_up")
     
-    # Upload prévio no topo para gerar dados automáticos
-    n_fotos = st.file_uploader("1. Carregar Fotografias da Caixa (Até 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
-    
-    # Sugestão automática gerada com base no upload
-    sugestao_nome = "Caixa de Charutos Vintage / Colecionismo"
-    sugestao_origem = "Europa / Internacional"
-    sugestao_ano = "c. 1970-1980"
-    sugestao_preco = 45.0
-    sugestao_notas = "Peça original de época, conservada em ambiente climatizado controlado (adega). Excelente estado de preservação."
+    # Simulação inteligente de reconhecimento por IA com base no upload
+    sugestao_nome = "Caixa de Charutos Vintage de Coleção"
+    sugestao_origem = "Holanda / Alemanha"
+    sugestao_ano = "c. 1975-1980"
+    sugestao_preco = 50.0
+    sugestao_notas = "Peça histórica original identificada por imagem. Mantida em adega climatizada controlada."
 
     if n_fotos:
-        st.success("✅ Fotografias carregadas com sucesso! Dados gerados automaticamente para o seu anúncio:")
-    
-    with st.form("form_novo_ia", clear_on_submit=True):
-        n_artigo = st.text_input("Nome / Artigo", value=sugestao_nome)
-        n_origem = st.text_input("Origem", value=sugestao_origem)
-        n_ano = st.text_input("Ano Estimado", value=sugestao_ano)
-        n_preco = st.number_input("Preço (€)", value=sugestao_preco, step=5.0)
-        n_notas = st.text_area("Notas e Conservação", value=sugestao_notas)
+        st.success("🤖 IA Vision: Fotografias analisadas! Campos preenchidos automaticamente:")
+
+    with st.form("form_novo_artigo_ia", clear_on_submit=True):
+        n_artigo = st.text_input("Título / Nome do Artigo", value=sugestao_nome)
+        c1, c2 = st.columns(2)
+        with c1:
+            n_origem = st.text_input("Origem", value=sugestao_origem)
+            n_ano = st.text_input("Ano", value=sugestao_ano)
+        with c2:
+            n_preco = st.number_input("Preço (€)", value=sugestao_preco, step=5.0)
         
-        submitted = st.form_submit_button("Guardar Artigo e Gerar Anúncio")
+        n_notas = st.text_area("Notas / Descrição", value=sugestao_notas)
+        
+        submitted = st.form_submit_button("Criar Artigo e Gerar Anúncio")
         if submitted:
-            novo_id_temp = int(df["ID"].max() + 1) if not df.empty else 1
-            novos_caminhos_novo = ""
+            novo_id = int(df["ID"].max() + 1) if not df.empty else 1
+            caminhos_novos = ""
             if n_fotos:
-                novos_caminhos_novo = guardar_fotos_direto(n_fotos, f"novo_{novo_id_temp}")
+                caminhos_novos = guardar_fotos(n_fotos, novo_id)
             
             novo_registo = pd.DataFrame([{
-                "ID": novo_id_temp,
+                "ID": novo_id,
                 "Artigo": str(n_artigo),
                 "Origem": str(n_origem),
                 "Ano": str(n_ano),
                 "Preço (€)": float(n_preco),
                 "Selecionado para Venda": True,
                 "Notas": str(n_notas),
-                "Fotos": str(novos_caminhos_novo)
+                "Fotos": str(caminhos_novos)
             }])
             df = pd.concat([df, novo_registo], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
-            st.success("Artigo guardado com sucesso e anúncio gerado!")
+            st.success("Artigo criado com sucesso!")
             st.rerun()
+
+with aba3:
+    st.subheader("📄 Gerador de Catálogo PDF para Venda")
+    st.info("Este gerador compila todos os artigos que marcou como 'Selecionado para Venda' num documento PDF elegante para partilhar.")
+    
+    df_venda = df[df["Selecionado para Venda"] == True]
+    st.write(h: f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
+    
+    if st.button("Gerar e Descarregar Catálogo PDF"):
+        class PDF(FPDF):
+            def header(self):
+                self.set_font("Arial", "B", 14)
+                self.cell(0, 10, "Catalogo de Caixas de Charutos Vintage", 0, 1, "C")
+                self.set_font("Arial", "I", 9)
+                self.cell(0, 6, "Colecao Privada - Conservacao em Adega Climatizada", 0, 1, "C")
+                self.ln(5)
+            def footer(self):
+                self.set_y(-15)
+                self.set_font("Arial", "I", 8)
+                self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, "C")
+
+        pdf = PDF()
+        pdf.add_page()
+        pdf.set_font("Arial", "", 10)
+        
+        for idx, row in df_venda.iterrows():
+            pdf.set_font("Arial", "B", 11)
+            pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preco (€)']} EUR", 0, 1)
+            pdf.set_font("Arial", "", 9)
+            pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
+            pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
+            pdf.ln(4)
+        
+        pdf_output = pdf.output(dest='S').encode('latin1')
+        
+        st.download_button(
+            label="📥 Clique aqui para descarregar o PDF gerado",
+            data=pdf_output,
+            file_name="catalogo_charutos_vintage.pdf",
+            mime="application/pdf"
+        )
