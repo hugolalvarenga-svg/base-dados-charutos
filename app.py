@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
 import os
-from PIL import Image, ImageOps
+import io
+from PIL import Image, ImageOps, ImageFile
 import base64
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Configuração da página
 st.set_page_config(page_title="Base de Dados de Caixas de Charutos Vintage", page_icon="📦", layout="wide")
@@ -23,16 +26,25 @@ dados_iniciais = [
     {"ID": 11, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", "Preço (€)": 125.0, "Selecionado para Venda": True, "Notas": "Luxuoso estojo de veludo vermelho com 30 unidades.", "Fotos": ""}
 ]
 
-def process_uploaded_image(uploaded_file):
-    try:
-        img = Image.open(uploaded_file)
-        img = ImageOps.exif_transpose(img)
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-        return img
-    except Exception as e:
-        st.error(f"Erro ao processar imagem: {e}")
-        return None
+# Função ultra-robusta para guardar fotos (Trata HDR e falhas de metadados)
+def guardar_fotos_upload(lista_ficheros, id_artigo):
+    os.makedirs("imagens_caixas", exist_ok=True)
+    novos_caminhos = []
+    for f_pos, up_file in enumerate(lista_ficheros[:4]):
+        caminho = os.path.join("imagens_caixas", f"artigo_{id_artigo}_f{f_pos+1}.jpg")
+        bytes_data = up_file.getvalue()
+        try:
+            img = Image.open(io.BytesIO(bytes_data))
+            img = ImageOps.exif_transpose(img)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+            img.save(caminho, "JPEG", quality=85)
+        except Exception:
+            # Fallback direto: se o HDR falhar no Pillow, guarda os bytes crus com sucesso
+            with open(caminho, "wb") as f:
+                f.write(bytes_data)
+        novos_caminhos.append(caminho)
+    return ";".join(novos_caminhos)
 
 def imagem_para_base64(caminho):
     try:
@@ -68,9 +80,9 @@ def carregar_dados():
 df = carregar_dados()
 
 st.title("📦 Base de Dados de Charutos")
-st.markdown("<small>Gestão compacta para telemóvel (Até 4 fotos por artigo)</small>", unsafe_allow_html=True)
+st.markdown("<small>Gestão compacta otimizada para telemóvel</small>", unsafe_allow_html=True)
 
-aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo Visual", "📊 Vendas & Anúncios", "➕ Novo Artigo"])
+aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo", "📊 Vendas & Anúncios", "➕ Novo Artigo"])
 
 with aba1:
     st.subheader("Inventário Compacto")
@@ -88,39 +100,34 @@ with aba1:
             with col_a:
                 st.markdown(f"**{row_1['Artigo']}**")
                 
-                # Fotografias lado a lado em bloco HTML Flexbox (força horizontal)
+                # Miniaturas lado a lado em horizontal
                 fotos_1 = [f.strip() for f in str(row_1['Fotos']).split(";") if f.strip() != ""]
                 if fotos_1:
-                    html_imgs = '<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px;">'
+                    html_imgs = '<div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 6px;">'
                     for f_path in fotos_1:
                         if os.path.exists(f_path):
                             b64 = imagem_para_base64(f_path)
-                            html_imgs += f'<img src="{b64}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
+                            html_imgs += f'<img src="{b64}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 4px; border: 1px solid #444;" />'
                     html_imgs += '</div>'
                     st.markdown(html_imgs, unsafe_allow_html=True)
                 else:
                     st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                 
-                ups_1 = st.file_uploader(f"Fotos (Max 4) ID {row_1['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
-                if ups_1:
-                    if len(ups_1) > 4:
-                        st.warning("Máximo 4 fotos.")
-                    else:
-                        os.makedirs("imagens_caixas", exist_ok=True)
-                        novos_caminhos = []
-                        for f_pos, up_file in enumerate(ups_1):
-                            processed_img = process_uploaded_image(up_file)
-                            if processed_img:
-                                caminho = os.path.join("imagens_caixas", f"artigo_{row_1['ID']}_f{f_pos+1}.jpg")
-                                processed_img.save(caminho, "JPEG")
-                                novos_caminhos.append(caminho)
-                        df.at[idx_1, 'Fotos'] = ";".join(novos_caminhos)
-                        df.to_csv(DATA_FILE, index=False)
-                        st.success("Atualizado!")
-                        st.rerun()
+                # Zonas compactas lado a lado (Upload, Nome, Preço)
+                c_up, c_nom, c_pre = st.columns([1.2, 1.3, 1])
+                with c_up:
+                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
+                with c_nom:
+                    novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']), key=f"n_{row_1['ID']}")
+                with c_pre:
+                    novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), key=f"p_{row_1['ID']}", step=5.0)
                 
-                novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']), key=f"n_{row_1['ID']}")
-                novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), key=f"p_{row_1['ID']}", step=5.0)
+                if ups_1:
+                    novos_caminhos = guardar_fotos_upload(ups_1, row_1['ID'])
+                    df.at[idx_1, 'Fotos'] = novos_caminhos
+                    df.to_csv(DATA_FILE, index=False)
+                    st.success("Atualizado!")
+                    st.rerun()
                 
                 if novo_nome_1 != row_1['Artigo'] or novo_preco_1 != row_1['Preço (€)']:
                     df.at[idx_1, 'Artigo'] = str(novo_nome_1)
@@ -129,16 +136,18 @@ with aba1:
                 
                 st.markdown(f"<small><b>Origem:</b> {row_1['Origem']} ({row_1['Ano']})<br><b>Notas:</b> {row_1['Notas']}</small>", unsafe_allow_html=True)
                 
-                sel_1 = st.checkbox("Vender", value=bool(row_1['Selecionado para Venda']), key=f"s_{row_1['ID']}")
-                if sel_1 != row_1['Selecionado para Venda']:
-                    df.at[idx_1, 'Selecionado para Venda'] = bool(sel_1)
-                    df.to_csv(DATA_FILE, index=False)
-                    st.rerun()
-                
-                if st.button("🗑️ Apagar", key=f"del_{row_1['ID']}"):
-                    df = df.drop(idx_1)
-                    df.to_csv(DATA_FILE, index=False)
-                    st.rerun()
+                c_chk, c_del = st.columns([1, 1])
+                with c_chk:
+                    sel_1 = st.checkbox("Vender", value=bool(row_1['Selecionado para Venda']), key=f"s_{row_1['ID']}")
+                    if sel_1 != row_1['Selecionado para Venda']:
+                        df.at[idx_1, 'Selecionado para Venda'] = bool(sel_1)
+                        df.to_csv(DATA_FILE, index=False)
+                        st.rerun()
+                with c_del:
+                    if st.button("🗑️ Apagar", key=f"del_{row_1['ID']}"):
+                        df = df.drop(idx_1)
+                        df.to_csv(DATA_FILE, index=False)
+                        st.rerun()
 
             # --- ARTIGO B ---
             if i + 1 < len(indices):
@@ -149,36 +158,30 @@ with aba1:
                     
                     fotos_2 = [f.strip() for f in str(row_2['Fotos']).split(";") if f.strip() != ""]
                     if fotos_2:
-                        html_imgs2 = '<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px;">'
+                        html_imgs2 = '<div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 6px;">'
                         for f_path in fotos_2:
                             if os.path.exists(f_path):
                                 b64 = imagem_para_base64(f_path)
-                                html_imgs2 += f'<img src="{b64}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #555;" />'
+                                html_imgs2 += f'<img src="{b64}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 4px; border: 1px solid #444;" />'
                         html_imgs2 += '</div>'
                         st.markdown(html_imgs2, unsafe_allow_html=True)
                     else:
                         st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                     
-                    ups_2 = st.file_uploader(f"Fotos (Max 4) ID {row_2['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_2['ID']}")
-                    if ups_2:
-                        if len(ups_2) > 4:
-                            st.warning("Máximo 4 fotos.")
-                        else:
-                            os.makedirs("imagens_caixas", exist_ok=True)
-                            novos_caminhos2 = []
-                            for f_pos, up_file in enumerate(ups_2):
-                                processed_img = process_uploaded_image(up_file)
-                                if processed_img:
-                                    caminho = os.path.join("imagens_caixas", f"artigo_{row_2['ID']}_f{f_pos+1}.jpg")
-                                    processed_img.save(caminho, "JPEG")
-                                    novos_caminhos2.append(caminho)
-                            df.at[idx_2, 'Fotos'] = ";".join(novos_caminhos2)
-                            df.to_csv(DATA_FILE, index=False)
-                            st.success("Atualizado!")
-                            st.rerun()
+                    c_up2, c_nom2, c_pre2 = st.columns([1.2, 1.3, 1])
+                    with c_up2:
+                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']}", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"up_{row_2['ID']}")
+                    with c_nom2:
+                        novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']), key=f"n_{row_2['ID']}")
+                    with c_pre2:
+                        novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), key=f"p_{row_2['ID']}", step=5.0)
                     
-                    novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']), key=f"n_{row_2['ID']}")
-                    novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), key=f"p_{row_2['ID']}", step=5.0)
+                    if ups_2:
+                        novos_caminhos2 = guardar_fotos_upload(ups_2, row_2['ID'])
+                        df.at[idx_2, 'Fotos'] = novos_caminhos2
+                        df.to_csv(DATA_FILE, index=False)
+                        st.success("Atualizado!")
+                        st.rerun()
                     
                     if novo_nome_2 != row_2['Artigo'] or novo_preco_2 != row_2['Preço (€)']:
                         df.at[idx_2, 'Artigo'] = str(novo_nome_2)
@@ -187,16 +190,18 @@ with aba1:
                     
                     st.markdown(f"<small><b>Origem:</b> {row_2['Origem']} ({row_2['Ano']})<br><b>Notas:</b> {row_2['Notas']}</small>", unsafe_allow_html=True)
                     
-                    sel_2 = st.checkbox("Vender", value=bool(row_2['Selecionado para Venda']), key=f"s_{row_2['ID']}")
-                    if sel_2 != row_2['Selecionado para Venda']:
-                        df.at[idx_2, 'Selecionado para Venda'] = bool(sel_2)
-                        df.to_csv(DATA_FILE, index=False)
-                        st.rerun()
-                    
-                    if st.button("🗑️ Apagar", key=f"del_{row_2['ID']}"):
-                        df = df.drop(idx_2)
-                        df.to_csv(DATA_FILE, index=False)
-                        st.rerun()
+                    c_chk2, c_del2 = st.columns([1, 1])
+                    with c_chk2:
+                        sel_2 = st.checkbox("Vender", value=bool(row_2['Selecionado para Venda']), key=f"s_{row_2['ID']}")
+                        if sel_2 != row_2['Selecionado para Venda']:
+                            df.at[idx_2, 'Selecionado para Venda'] = bool(sel_2)
+                            df.to_csv(DATA_FILE, index=False)
+                            st.rerun()
+                    with c_del2:
+                        if st.button("🗑️ Apagar", key=f"del_{row_2['ID']}"):
+                            df = df.drop(idx_2)
+                            df.to_csv(DATA_FILE, index=False)
+                            st.rerun()
             
             st.divider()
 
@@ -228,26 +233,20 @@ with aba3:
         n_fotos = st.file_uploader("Fotos (Max 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
         
         if st.form_submit_button("Guardar"):
+            novo_id_temp = int(df["ID"].max() + 1) if not df.empty else 1
             novos_caminhos_novo = []
             if n_fotos:
-                os.makedirs("imagens_caixas", exist_ok=True)
-                novo_id_temp = int(df["ID"].max() + 1) if not df.empty else 1
-                for f_pos, up_file in enumerate(n_fotos[:4]):
-                    processed_img = process_uploaded_image(up_file)
-                    if processed_img:
-                        caminho = os.path.join("imagens_caixas", f"artigo_novo_{novo_id_temp}_f{f_pos+1}.jpg")
-                        processed_img.save(caminho, "JPEG")
-                        novos_caminhos_novo.append(caminho)
+                novos_caminhos_novo = guardar_fotos_upload(n_fotos, f"novo_{novo_id_temp}")
             
             novo_registo = pd.DataFrame([{
-                "ID": int(df["ID"].max() + 1) if not df.empty else 1,
+                "ID": novo_id_temp,
                 "Artigo": str(n_artigo),
                 "Origem": str(n_origem),
                 "Ano": str(n_ano),
                 "Preço (€)": float(n_preco),
                 "Selecionado para Venda": True,
                 "Notas": str(n_notas),
-                "Fotos": ";".join(novos_caminhos_novo)
+                "Fotos": str(novos_caminhos_novo)
             }])
             df = pd.concat([df, novo_registo], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
