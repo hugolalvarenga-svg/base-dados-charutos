@@ -12,28 +12,118 @@ DATA_FILE = "inventario_charutos_vintage.csv"
 
 dados_iniciais = [
     {
-        "ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", 
-        "Preço (€)": 25.0, "Selecionado para Venda": True, 
-        "Notas": "Pocket pack cartonado com janela em acetato. Selados.", "Fotos": "",
-        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Vintage (Willem II)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico holandês (c. 1982-1985), destinada a colecionadores e entusiastas de objectos de época.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 25.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+        "ID": 1, "Artigo": "C.E. Kimling Sortido de Gala", "Origem": "Internacional", "Ano": "1974", 
+        "Preço (€)": 110.0, "Selecionado para Venda": True, 
+        "Notas": "Sortido de gala de prestígio com conteúdo preservado em adega climatizada.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - C.E. Kimling Sortido de Gala (1974)\n\nMagnífica peça de memorabilia e design industrial retro de época (1974), destinada a colecionadores e entusiastas de objectos gráficos e embalagens clássicas de prestígio.\n\n• Detalhes da Peça:\n  - Artigo: C.E. Kimling Sortido de Gala\n  - Apresentação: Estojo de colecionador original com elementos gráficos preservados.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 110.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
     },
     {
-        "ID": 2, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", 
-        "Preço (€)": 85.0, "Selecionado para Venda": True, 
-        "Notas": "Mostruário com tampa de Oficial Couraceiro e conteúdo original intacto.", "Fotos": "",
-        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Militar (De Huifkar, 1974)\n\nExcecional mostruário de prestígio com litografia histórica de época e elementos originais intactos.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 85.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
-    },
-    {
-        "ID": 3, "Artigo": "Toscani Extra-Vecchi (5 Unidades)", "Origem": "Itália", "Ano": "c. 1978-1983", 
+        "ID": 2, "Artigo": "Toscani Extra-Vecchi (5 Unidades)", "Origem": "Itália", "Ano": "c. 1978-1983", 
         "Preço (€)": 40.0, "Selecionado para Venda": True, 
         "Notas": "Edição clássica de exportação, folha Kentucky fermentada.", "Fotos": "",
-        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Toscani Extra-Vecchi\n\nMagnífica peça de memorabilia e design industrial retro de fabrico italiano (c. 1978-1983) com selos fiscais originais.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 40.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Toscani Extra-Vecchi\n\nMagnífica peça de memorabilia e design industrial retro de fabrico italiano (c. 1978-1983), destinada a colecionadores e entusiastas de objectos de época e selos fiscais.\n\n• Detalhes da Peça:\n  - Artigo: Toscani Extra-Vecchi (5 Unidades)\n  - Apresentação: Edição clássica de exportação com selos fiscais originais de época.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 40.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
     },
     {
-        "ID": 4, "Artigo": "Don Julián N.º 5 Canárias", "Origem": "Espanha", "Ano": "c. 1988-1992", 
+        "ID": 3, "Artigo": "Don Julián N.º 5 Canárias", "Origem": "Espanha", "Ano": "c. 1988-1992", 
         "Preço (€)": 50.0, "Selecionado para Venda": True, 
         "Notas": "Caixa de madeira com 19 unidades em tubos de alumínio.", "Fotos": "",
-        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Don Julián Nº 5 (Espanha)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico espanhol (Ilhas Canárias, c. 1988-1992), com 19 unidades em tubos de alumínio originais.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: 50.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Don Julián Nº 5 (Espanha)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico espanhol (Ilhas Canárias, c. 1988-1992), com 19 unidades em tubos de alumínio originais.\n\n• Detalhes da Peça:\n  - Artigo: Caixa Expositora Don Julián Nº 5\n  - Apresentação: Caixa de madeira nobre com tubos de alumínio decorativos e selagem original.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 50.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 4, "Artigo": "Dutch Masters Panetelas", "Origem": "EUA / Holanda", "Ano": "c. 1968-1974", 
+        "Preço (€)": 35.0, "Selecionado para Venda": True, 
+        "Notas": "Embalagem clássica vintage em perfeito estado de conservação.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Embalagem Vintage Dutch Masters Panetelas\n\nMagnífica peça de memorabilia e design industrial retro internacional (c. 1968-1974), destinada a colecionadores e entusiastas de objectos gráficos e embalagens clássicas.\n\n• Detalhes da Peça:\n  - Artigo: Dutch Masters Panetelas\n  - Apresentação: Caixa expositora clássica com litografia retro intacta.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 35.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 5, "Artigo": "De Huifkar Exclusive 15 (Lote Militar)", "Origem": "Holanda", "Ano": "1974", 
+        "Preço (€)": 85.0, "Selecionado para Venda": True, 
+        "Notas": "Mostruário com tampa de Oficial Couraceiro e conteúdo original intacto.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Militar (De Huifkar, 1974)\n\nExcecional mostruário de prestígio com litografia histórica de época (Oficial Couraceiro) e elementos originais intactos, destinado a colecionadores de memorabilia militar e industrial.\n\n• Detalhes da Peça:\n  - Artigo: De Huifkar Exclusive 15 (Lote Militar)\n  - Apresentação: Tampa decorativa com pintura de época e selagem original intacta.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 85.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 6, "Artigo": "Cerdan Perlas 10", "Origem": "Europa", "Ano": "Meados anos 90", 
+        "Preço (€)": 65.0, "Selecionado para Venda": True, 
+        "Notas": "Apresentação clássica de época em excelente estado.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Cerdan Perlas 10\n\nMagnífica peça de memorabilia e design industrial clássico (meados anos 90), destinada a colecionadores e entusiastas de objectos gráficos de época.\n\n• Detalhes da Peça:\n  - Artigo: Cerdan Perlas 10\n  - Apresentação: Embalagem colecionável com design clássico e acabamentos de época.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 65.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 7, "Artigo": "Stompkop Professional", "Origem": "Europa", "Ano": "Anos 70", 
+        "Preço (€)": 60.0, "Selecionado para Venda": True, 
+        "Notas": "Edição profissional clássica dos anos 70.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Stompkop Professional\n\nMagnífica peça de memorabilia e design industrial retro (anos 70), destinada a colecionadores e entusiastas de objectos gráficos e edições limitadas.\n\n• Detalhes da Peça:\n  - Artigo: Stompkop Professional\n  - Apresentação: Mostruário de época com tipografia e elementos gráficos originais.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 60.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 8, "Artigo": "Schneehasen Nº 301", "Origem": "Europa", "Ano": "c. 1968-1973", 
+        "Preço (€)": 55.0, "Selecionado para Venda": True, 
+        "Notas": "Edição vintage colecionável.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Schneehasen Nº 301\n\nMagnífica peça de memorabilia e design industrial retro europeu (c. 1968-1973), destinada a colecionadores de objectos gráficos e embalagens clássicas.\n\n• Detalhes da Peça:\n  - Artigo: Schneehasen Nº 301\n  - Apresentação: Embalagem colecionável vintage com selagem de origem.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 55.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 9, "Artigo": "Medan 50 Wilde Cigarillos", "Origem": "Europa", "Ano": "c. 1980-1983", 
+        "Preço (€)": 55.0, "Selecionado para Venda": True, 
+        "Notas": "Caixa expositora com 50 unidades de época.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Medan 50 Wilde Cigarillos\n\nMagnífica peça de memorabilia e design industrial retro de época (c. 1980-1983), contendo 50 unidades e destinada a colecionadores de embalagens clássicas.\n\n• Detalhes da Peça:\n  - Artigo: Medan 50 Wilde Cigarillos\n  - Apresentação: Mostruário completo com litografia original de época.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 55.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 10, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", 
+        "Preço (€)": 125.0, "Selecionado para Venda": True, 
+        "Notas": "Assortiment de prestígio holandês de grande valor para colecionadores.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Mostruário Ritmeester Assortiment 7030\n\nExcecional mostruário de prestígio de fabrico holandês (c. 1976-1979), destinado a colecionadores de alta memorabilia e design industrial retro.\n\n• Detalhes da Peça:\n  - Artigo: Ritmeester Assortiment 7030\n  - Apresentação: Caixa expositora de grande formato com compartimentos e sortido original.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 125.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 11, "Artigo": "Fábrica Cañón Rayado", "Origem": "Venezuela", "Ano": "c. 1975-1982", 
+        "Preço (€)": 65.0, "Selecionado para Venda": True, 
+        "Notas": "Mostruário com aba expositora ilustrada e conteúdo selado completo.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Cañón Rayado (Venezuela)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico venezuelano (c. 1975-1982), com aba expositora ilustrada e destinada a colecionadores.\n\n• Detalhes da Peça:\n  - Artigo: Fábrica Cañón Rayado\n  - Apresentação: Mostruário com ilustrações gráficas exclusivas de época.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 65.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 12, "Artigo": "Tiparillo Mild Blend", "Origem": "EUA (New York)", "Ano": "c. 1970-1976", 
+        "Preço (€)": 30.0, "Selecionado para Venda": True, 
+        "Notas": "Pack de bolso vintage com 5 unidades, selado na película original de fábrica.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Embalagem Vintage Tiparillo Mild Blend (EUA)\n\nMagnífica peça de memorabilia e design industrial retro norte-americano (c. 1970-1976), mantida na película celofane original de fábrica.\n\n• Detalhes da Peça:\n  - Artigo: Tiparillo Mild Blend (Pack de Bolso)\n  - Apresentação: Embalagem cartonada original selada de origem.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 30.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 13, "Artigo": "Ritmeester Pikeur", "Origem": "Holanda", "Ano": "c. 1978-1985", 
+        "Preço (€)": 28.0, "Selecionado para Venda": True, 
+        "Notas": "Pocket pack cartonado com janela em acetato e litografia clássica do cavaleiro.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Ritmeester Pikeur (Holanda)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico holandês (c. 1978-1985), com janela em acetato e litografia clássica.\n\n• Detalhes da Peça:\n  - Artigo: Ritmeester Pikeur\n  - Apresentação: Pocket pack cartonado com ilustrações temáticas originais.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 28.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 14, "Artigo": "Lorillard's L.T. Brown 120's", "Origem": "EUA", "Ano": "c. 1975-1982", 
+        "Preço (€)": 32.0, "Selecionado para Venda": True, 
+        "Notas": "Maço vintage preto e dourado com celofane original de fábrica intacto.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Embalagem Vintage Lorillard's L.T. Brown 120's (EUA)\n\nMagnífica peça de memorabilia e design industrial retro norte-americano em tons preto e dourado (c. 1975-1982), com selagem integral em celofane.\n\n• Detalhes da Peça:\n  - Artigo: Lorillard's L.T. Brown 120's\n  - Apresentação: Maço rígido colecionável com monograma histórico original.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 32.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 15, "Artigo": "King Edward VII Imperial", "Origem": "EUA", "Ano": "c. 1970-1978", 
+        "Preço (€)": 35.0, "Selecionado para Venda": True, 
+        "Notas": "Estojo vintage com janela em acetato e retrato medalhão do Rei Eduardo VII.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor King Edward VII Imperial\n\nMagnífica peça de memorabilia e design industrial retro norte-americano (c. 1970-1978), apresentando o retrato medalhão clássico do Rei Eduardo VII.\n\n• Detalhes da Peça:\n  - Artigo: King Edward VII Imperial\n  - Apresentação: Embalagem de bolso com janela em acetato e anilhas originais.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 35.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 16, "Artigo": "Álvaro Especiales (Congresso Urologia Tenerife)", "Origem": "Espanha (Canárias)", "Ano": "1985", 
+        "Preço (€)": 95.0, "Selecionado para Venda": True, 
+        "Notas": "Caixa comemorativa com brasão em relevo e anilhas alusivas ao Congresso de Urologia de 1985.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora Álvaro Especiales (Tenerife 1985)\n\nExcecional peça de memorabilia e design comemorativo institucional (Congresso de Urologia, Tenerife, 1985), com brasão heráldico em relevo.\n\n• Detalhes da Peça:\n  - Artigo: Álvaro Especiales - Congresso Urologia Tenerife 1985\n  - Apresentação: Estojo comemorativo com anilhas personalizadas do evento.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 95.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 17, "Artigo": "Soberano (Gonzalez Byass, Jerez)", "Origem": "Espanha (Jerez)", "Ano": "c. 1978-1985", 
+        "Preço (€)": 38.0, "Selecionado para Venda": True, 
+        "Notas": "Estojo de bolso vintage associado à histórica casa González Byass com 5 unidades seladas.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Estojo Expositor Soberano (Gonzalez Byass, Jerez)\n\nMagnífica peça de memorabilia e design industrial retro (c. 1978-1985), associada à histórica casa de Jerez González Byass.\n\n• Detalhes da Peça:\n  - Artigo: Soberano / González Byass\n  - Apresentação: Estojo de bolso cartonado com alusão à marca histórica de Jerez.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 38.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 18, "Artigo": "De Huifkar Exclusive (Assortment)", "Origem": "Holanda (Duizel)", "Ano": "c. 1978-1985", 
+        "Preço (€)": 75.0, "Selecionado para Venda": True, 
+        "Notas": "Caixa de prestígio mista com compartimentos Practicus, Pandora e Imperiales.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Expositora De Huifkar Exclusive (Holanda)\n\nExcecional peça de memorabilia e design industrial retro de fabrico neerlandês (c. 1978-1985), com compartimentos múltiplos (Practicus, Pandora e Imperiales).\n\n• Detalhes da Peça:\n  - Artigo: De Huifkar Exclusive Assortment\n  - Apresentação: Estojo em madeira nobre com folheto decorativo original.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 75.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
+    },
+    {
+        "ID": 19, "Artigo": "25 Cedros - Álvaro Especiales", "Origem": "Espanha (Ilhas Canárias)", "Ano": "c. 1978-1986", 
+        "Preço (€)": 70.0, "Selecionado para Venda": True, 
+        "Notas": "Caixa com 25 unidades, selos fiscais oficiais espanhóis e celofane de fábrica intacto.", "Fotos": "",
+        "Anuncio": "Peça de Colecionismo Histórico - Caixa Lote 25 Cedros Álvaro Especiales (Espanha)\n\nMagnífica peça de memorabilia e design industrial retro de fabrico espanhol (Ilhas Canárias, c. 1978-1986), com selos fiscais oficiais de época intactos.\n\n• Detalhes da Peça:\n  - Artigo: 25 Cedros - Álvaro Especiales\n  - Apresentação: Caixa selada com selagem fiscal original de época.\n  - Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n\n• Preço: 70.00 €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta.\n\nPara verdadeiros apreciadores de colecionismo histórico. Para mais informações, envie mensagem privada."
     }
 ]
 
@@ -112,9 +202,9 @@ with aba1:
                     
                     novas_notas = st.text_area("Notas / Descrição", value=str(row['Notas']))
                     
-                    anuncio_padrao = f"Peça de Colecionismo Histórico - Estojo Expositor Vintage ({row['Artigo']})\n\nMagnífica peça de memorabilia e design industrial retro de época ({row['Origem']}, {row['Ano']}), destinada a colecionadores e entusiastas.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: {row['Preço (€)']} €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+                    anuncio_padrao = f"Peça de Colecionismo Histórico - {row['Artigo']}\n\nMagnífica peça de memorabilia e design industrial retro ({row['Origem']}, {row['Ano']}), destinada a colecionadores e entusiastas de objectos de época.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: {row['Preço (€)']} €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
                     anuncio_atual = str(row['Anuncio']) if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else anuncio_padrao
-                    novo_anuncio = st.text_area("Texto do Anúncio Guardado (Seguro contra Bots)", value=anuncio_atual, height=140)
+                    novo_anuncio = st.text_area("Texto do Anúncio Guardado (Seguro para Marketplace)", value=anuncio_atual, height=140)
                     
                     novas_fotos = st.file_uploader("Alterar / Adicionar Fotos (Máx 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"uf_{row['ID']}")
                     
@@ -141,7 +231,7 @@ with aba1:
 
 with aba2:
     st.subheader("📢 Central de Anúncios Guardados (Prontos a Publicar)")
-    st.info("Consulte e copie rapidamente os textos protegidos contra bloqueios para colocar no OLX ou Marketplace.")
+    st.info("Consulte e copie rapidamente os textos protegidos contra bloqueios no Marketplace e OLX.")
     
     if df.empty:
         st.info("Sem anúncios disponíveis.")
@@ -149,7 +239,7 @@ with aba2:
         for index, row in df.iterrows():
             with st.expander(f"📋 Anúncio: {row['Artigo']} ({row['Preço (€)']}€)"):
                 texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
-                st.text_input("Copiar Texto para Plataforma:", value=texto_mostrar, key=f"copia_{row['ID']}")
+                st.text_area("Copiar Texto para Plataforma:", value=texto_mostrar, height=140, key=f"copia_txt_{row['ID']}")
 
 with aba3:
     st.subheader("➕ Adicionar Novo Artigo")
@@ -216,11 +306,9 @@ with aba4:
             pdf.set_font("Arial", "", 10)
             
             for index, (idx, row) in enumerate(df_venda.iterrows(), start=1):
-                # Verificar se o espaço restante na página é inferior a 50mm para evitar cortes
                 if pdf.get_y() > 210:
                     pdf.add_page()
                 
-                # 1. Título do Lote e Preço alinhados
                 pdf.set_font("Arial", "B", 11)
                 pdf.cell(150, 6, f"{index}. {row['Artigo']}", 0, 0)
                 pdf.set_font("Arial", "B", 11)
@@ -228,12 +316,10 @@ with aba4:
                 pdf.cell(30, 6, f"{row['Preço (€)']} EUR", 0, 1, "R")
                 pdf.set_text_color(0, 0, 0)
                 
-                # 2. Origem e Ano
                 pdf.set_font("Arial", "I", 9)
                 pdf.cell(0, 5, f"Origem: {row['Origem']} | Ano: {row['Ano']}", 0, 1)
                 pdf.ln(3)
                 
-                # 3. Bloco de Imagem com altura fixa restrita e Texto ao lado
                 y_conteudo = pdf.get_y()
                 fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
                 
@@ -241,15 +327,11 @@ with aba4:
                 
                 if fotos and os.path.exists(fotos[0]):
                     try:
-                        # Forçar altura máxima estrita de 28mm para que nenhuma imagem sobreponha o texto
                         pdf.image(fotos[0], x=10, y=y_conteudo, h=28)
-                        
-                        # Posicionar o bloco de texto à direita da imagem de forma isolada
                         pdf.set_xy(58, y_conteudo)
                         pdf.set_font("Arial", "", 9)
                         pdf.multi_cell(142, 5, texto_detalhes)
                         
-                        # Garantir que o espaçamento abaixo do bloco respeita o maior elemento (imagem de 28mm ou texto)
                         y_fim_texto = pdf.get_y()
                         y_baixo = max(y_fim_texto, y_conteudo + 28)
                         pdf.set_y(y_baixo + 6)
@@ -262,7 +344,6 @@ with aba4:
                     pdf.multi_cell(0, 5, texto_detalhes)
                     pdf.ln(4)
                 
-                # 4. Linha separadora subtil entre lotes
                 pdf.set_draw_color(220, 220, 220)
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
                 pdf.ln(6)
