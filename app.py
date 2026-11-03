@@ -20,7 +20,7 @@ def process_uploaded_image(uploaded_file):
         st.error(f"Erro ao processar o formato da imagem: {e}")
         return None
 
-# Base de dados inicial dos artigos catalogados
+# Inicialização da base de dados completa na sessão
 if 'catalogo' not in st.session_state:
     st.session_state.catalogo = [
         {
@@ -49,48 +49,65 @@ if 'catalogo' not in st.session_state:
         }
     ]
 
-# Menu lateral ou separadores
-aba = st.sidebar.radio("Navegação", ["Catálogo Existente", "Adicionar Novo Artigo (Telemóvel/HDR)"])
+# Menu lateral de navegação completo
+menu = st.sidebar.radio("Navegação", ["Catálogo e Anúncios", "Adicionar Novo Artigo (Telemóvel/HDR)"])
 
-if aba == "Catálogo Existente":
-    st.subheader("📋 Artigos Catalogados no Espólio")
+if menu == "Catálogo e Anúncios":
+    st.subheader("📋 Catálogo Completo de Espólio e Gestão de Anúncios")
     
+    # Filtro ou visualização em tabela/cartões
     for item in st.session_state.catalogo:
-        with st.expander(f"📦 {item['artigo']} ({item['ano']}) - {item['preco']}€"):
-            st.write(f"**Origem:** {item['origem']}")
-            st.write(f"**Notas:** {item['notas']}")
+        with st.expander(f"📦 ID {item['id']} — {item['artigo']} ({item['ano']}) | {item['preco']}€"):
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.write(f"**Origem/Fabricante:** {item['origem']}")
+                st.write(f"**Notas de Conservação:** {item['notas']}")
+            with col2:
+                st.metric("Preço de Venda", f"{item['preco']}€")
             
-            # Exemplo de texto de anúncio pronto a usar
-            if st.button(f"Gerar Texto de Anúncio - ID {item['id']}", key=f"btn_{item['id']}"):
-                st.markdown("### 📢 Anúncio Otimizado (OLX / Marketplace)")
-                st.code(f"""Vendo magnífico artigo de coleção vintage: {item['artigo']}.
-Origem: {item['origem']} ({item['ano']}).
-Estado: Preservado em ambiente controlado de adega. Conteúdo original de época.
-Preço: {item['preco']}€.
-Entrega em mão na zona de Agualva-Cacém (Sintra) ou envio a combinar.""")
+            st.markdown("---")
+            st.markdown("#### 📢 Texto de Anúncio Otimizado (OLX / Marketplace)")
+            
+            # Texto de anúncio gerado automaticamente no padrão de colecionismo
+            texto_anuncio = f"""Vendo magnífico artigo de coleção vintage: {item['artigo']}, uma peça de exceção para colecionadores e entusiastas de alta gama.
 
-elif aba == "Adicionar Novo Artigo (Telemóvel/HDR)":
-    st.subheader("📸 Adicionar Novo Artigo com Suporte a HDR")
+🎨 Detalhes e Origem:
+• Origem: {item['origem']} ({item['ano']}).
+• Descrição: {item['notas']}
+
+💎 Conservação:
+Preservado rigorosamente em ambiente controlado (adega), mantendo a integridade estrutural e o encanto histórico de época.
+
+🚚 Condições:
+• Entrega em mão na zona de Agualva-Cacém (Sintra) ou ponto central próximo.
+• Envio postal seguro disponível sob consulta.
+Para mais detalhes ou fotografias adicionais, envie mensagem privada."""
+
+            st.code(texto_anuncio, language="text")
+
+elif menu == "Adicionar Novo Artigo (Telemóvel/HDR)":
+    st.subheader("📸 Adicionar Artigo com Suporte a Fotografias do Telemóvel (HDR)")
     
-    uploaded_file = st.file_uploader("Carregar fotografia do artigo (Telemóvel / Ultra HDR)", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Carregar fotografia do artigo (Suporta Ultra HDR e telemóveis)", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
         processed_img = process_uploaded_image(uploaded_file)
         
         if processed_img is not None:
-            st.success("Fotografia processada com sucesso!")
-            st.image(processed_img, caption="Pré-visualização", use_container_width=True)
+            st.success("Fotografia do telemóvel processada com sucesso!")
+            st.image(processed_img, caption="Pré-visualização do Artigo", use_container_width=True)
             
-            with st.form("form_novo_artigo"):
-                novo_nome = st.text_input("Nome do Artigo", value="")
-                nova_origem = st.text_input("Origem", value="")
-                novo_ano = st.text_input("Ano Estimado", value="")
-                novo_preco = st.number_input("Preço (€)", value=0.0)
-                novas_notas = st.text_area("Notas / Descrição", value="")
+            with st.form("form_adicionar"):
+                novo_nome = st.text_input("Nome do Artigo / Caixa")
+                nova_origem = st.text_input("Origem / Fabricante")
+                novo_ano = st.text_input("Ano Estimado (ex: c. 1974)")
+                novo_preco = st.number_input("Preço (€)", value=30.0)
+                novas_notas = st.text_area("Notas / Descrição Histórica")
                 
-                submitted = st.form_submit_button("Guardar na Base de Dados")
-                if submitted:
-                    novo_id = len(st.session_state.catalogo) + 1
+                btn_gravar = st.form_submit_button("Guardar Artigo na Base de Dados")
+                
+                if btn_gravar:
+                    novo_id = max([x['id'] for x in st.session_state.catalogo], default=0) + 1
                     st.session_state.catalogo.append({
                         "id": novo_id,
                         "artigo": novo_nome,
@@ -99,4 +116,4 @@ elif aba == "Adicionar Novo Artigo (Telemóvel/HDR)":
                         "preco": novo_preco,
                         "notas": novas_notas
                     })
-                    st.success("Artigo adicionado com sucesso ao catálogo!")
+                    st.success(f"Artigo '{novo_nome}' adicionado com sucesso ao catálogo!")
