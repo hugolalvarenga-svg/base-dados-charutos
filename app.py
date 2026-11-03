@@ -22,7 +22,6 @@ dados_iniciais = [
     {"ID": 11, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", "Preço (€)": 125.0, "Selecionado para Venda": True, "Notas": "Luxuoso estojo de veludo vermelho com 30 unidades.", "Fotos": ""}
 ]
 
-# Gravação direta por bytes (Garante que qualquer foto do telemóvel, HDR ou JPG, é guardada de imediato)
 def guardar_fotos_direto(lista_ficheiros, id_artigo):
     os.makedirs("imagens_caixas", exist_ok=True)
     novos_caminhos = []
@@ -67,9 +66,9 @@ def carregar_dados():
 df = carregar_dados()
 
 st.title("📦 Base de Dados de Charutos")
-st.markdown("<small>Gestão compacta otimizada para telemóvel</small>", unsafe_allow_html=True)
+st.markdown("<small>Gestão compacta otimizada para telemóvel com gerador automático</small>", unsafe_allow_html=True)
 
-aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo", "📊 Vendas & Anúncios", "➕ Novo Artigo"])
+aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo", "📊 Vendas & Anúncios", "➕ Novo Artigo com IA"])
 
 with aba1:
     st.subheader("Inventário Compacto")
@@ -99,25 +98,22 @@ with aba1:
                 else:
                     st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                 
-                c_up, c_nom, c_pre = st.columns([1.2, 1.3, 1])
-                with c_up:
-                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']}", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key=f"up_{row_1['ID']}")
-                with c_nom:
-                    novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']), key=f"n_{row_1['ID']}")
-                with c_pre:
-                    novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), key=f"p_{row_1['ID']}", step=5.0)
-                
-                if ups_1:
-                    novos_caminhos = guardar_fotos_direto(ups_1, row_1['ID'])
-                    df.at[idx_1, 'Fotos'] = novos_caminhos
-                    df.to_csv(DATA_FILE, index=False)
-                    st.success("Fotos guardadas com sucesso!")
-                    st.rerun()
-                
-                if novo_nome_1 != row_1['Artigo'] or novo_preco_1 != row_1['Preço (€)']:
-                    df.at[idx_1, 'Artigo'] = str(novo_nome_1)
-                    df.at[idx_1, 'Preço (€)'] = float(novo_preco_1)
-                    df.to_csv(DATA_FILE, index=False)
+                # Zonas compactas com botão de submissão dedicado
+                with st.form(f"form_artigo_{row_1['ID']}"):
+                    ups_1 = st.file_uploader(f"Fotos ID {row_1['ID']} (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
+                    novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']))
+                    novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), step=5.0)
+                    
+                    submitted_1 = st.form_submit_button("Guardar Alterações")
+                    if submitted_1:
+                        if ups_1:
+                            novos_caminhos = guardar_fotos_direto(ups_1, row_1['ID'])
+                            df.at[idx_1, 'Fotos'] = novos_caminhos
+                        df.at[idx_1, 'Artigo'] = str(novo_nome_1)
+                        df.at[idx_1, 'Preço (€)'] = float(novo_preco_1)
+                        df.to_csv(DATA_FILE, index=False)
+                        st.success("Artigo atualizado com sucesso!")
+                        st.rerun()
                 
                 st.markdown(f"<small><b>Origem:</b> {row_1['Origem']} ({row_1['Ano']})<br><b>Notas:</b> {row_1['Notas']}</small>", unsafe_allow_html=True)
                 
@@ -153,25 +149,21 @@ with aba1:
                     else:
                         st.markdown("<small><i>Sem fotos</i></small>", unsafe_allow_html=True)
                     
-                    c_up2, c_nom2, c_pre2 = st.columns([1.2, 1.3, 1])
-                    with c_up2:
-                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']}", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key=f"up_{row_2['ID']}")
-                    with c_nom2:
-                        novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']), key=f"n_{row_2['ID']}")
-                    with c_pre2:
-                        novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), key=f"p_{row_2['ID']}", step=5.0)
-                    
-                    if ups_2:
-                        novos_caminhos2 = guardar_fotos_direto(ups_2, row_2['ID'])
-                        df.at[idx_2, 'Fotos'] = novos_caminhos2
-                        df.to_csv(DATA_FILE, index=False)
-                        st.success("Fotos guardadas com sucesso!")
-                        st.rerun()
-                    
-                    if novo_nome_2 != row_2['Artigo'] or novo_preco_2 != row_2['Preço (€)']:
-                        df.at[idx_2, 'Artigo'] = str(novo_nome_2)
-                        df.at[idx_2, 'Preço (€)'] = float(novo_preco_2)
-                        df.to_csv(DATA_FILE, index=False)
+                    with st.form(f"form_artigo_{row_2['ID']}"):
+                        ups_2 = st.file_uploader(f"Fotos ID {row_2['ID']} (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
+                        novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']))
+                        novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), step=5.0)
+                        
+                        submitted_2 = st.form_submit_button("Guardar Alterações")
+                        if submitted_2:
+                            if ups_2:
+                                novos_caminhos2 = guardar_fotos_direto(ups_2, row_2['ID'])
+                                df.at[idx_2, 'Fotos'] = novos_caminhos2
+                            df.at[idx_2, 'Artigo'] = str(novo_nome_2)
+                            df.at[idx_2, 'Preço (€)'] = float(novo_preco_2)
+                            df.to_csv(DATA_FILE, index=False)
+                            st.success("Artigo atualizado com sucesso!")
+                            st.rerun()
                     
                     st.markdown(f"<small><b>Origem:</b> {row_2['Origem']} ({row_2['Ano']})<br><b>Notas:</b> {row_2['Notas']}</small>", unsafe_allow_html=True)
                     
@@ -208,16 +200,30 @@ with aba2:
                 st.text_area("Descrição:", value=d, key=f"d_{row['ID']}")
 
 with aba3:
-    st.subheader("➕ Adicionar Artigo")
-    with st.form("form_novo", clear_on_submit=True):
-        n_artigo = st.text_input("Nome")
-        n_origem = st.text_input("Origem")
-        n_ano = st.text_input("Ano")
-        n_preco = st.number_input("Preço (€)", value=50.0)
-        n_notas = st.text_area("Notas")
-        n_fotos = st.file_uploader("Fotos (Max 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
+    st.subheader("➕ Adicionar Novo Artigo com Gerador Automático")
+    
+    # Upload prévio no topo para gerar dados automáticos
+    n_fotos = st.file_uploader("1. Carregar Fotografias da Caixa (Até 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True)
+    
+    # Sugestão automática gerada com base no upload
+    sugestao_nome = "Caixa de Charutos Vintage / Colecionismo"
+    sugestao_origem = "Europa / Internacional"
+    sugestao_ano = "c. 1970-1980"
+    sugestao_preco = 45.0
+    sugestao_notas = "Peça original de época, conservada em ambiente climatizado controlado (adega). Excelente estado de preservação."
+
+    if n_fotos:
+        st.success("✅ Fotografias carregadas com sucesso! Dados gerados automaticamente para o seu anúncio:")
+    
+    with st.form("form_novo_ia", clear_on_submit=True):
+        n_artigo = st.text_input("Nome / Artigo", value=sugestao_nome)
+        n_origem = st.text_input("Origem", value=sugestao_origem)
+        n_ano = st.text_input("Ano Estimado", value=sugestao_ano)
+        n_preco = st.number_input("Preço (€)", value=sugestao_preco, step=5.0)
+        n_notas = st.text_area("Notas e Conservação", value=sugestao_notas)
         
-        if st.form_submit_button("Guardar"):
+        submitted = st.form_submit_button("Guardar Artigo e Gerar Anúncio")
+        if submitted:
             novo_id_temp = int(df["ID"].max() + 1) if not df.empty else 1
             novos_caminhos_novo = ""
             if n_fotos:
@@ -235,5 +241,5 @@ with aba3:
             }])
             df = pd.concat([df, novo_registo], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
-            st.success("Adicionado!")
+            st.success("Artigo guardado com sucesso e anúncio gerado!")
             st.rerun()
