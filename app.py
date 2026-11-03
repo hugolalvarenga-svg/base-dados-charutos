@@ -6,10 +6,8 @@ from PIL import Image, ImageOps
 # Configuração da página
 st.set_page_config(page_title="Base de Dados de Caixas de Charutos Vintage", page_icon="📦", layout="wide")
 
-# Ficheiro local para guardar o inventário com fotos e estados
 DATA_FILE = "inventario_charutos_vintage.csv"
 
-# Dados iniciais baseados no catálogo oficial
 dados_iniciais = [
     {"ID": 1, "Artigo": "Willem II 5 Half Corona", "Origem": "Holanda", "Ano": "c. 1982-1985", "Preço (€)": 25.0, "Selecionado para Venda": True, "Notas": "Pocket pack cartonado com janela em acetato. Selados.", "Foto": ""},
     {"ID": 2, "Artigo": "C.E. Kimling Sortido de Gala", "Origem": "Alemanha", "Ano": "1974", "Preço (€)": 110.0, "Selecionado para Venda": True, "Notas": "Mostruário de luxo com litografia equestre 'The Meet at Blagdon'.", "Foto": ""},
@@ -24,7 +22,6 @@ dados_iniciais = [
     {"ID": 11, "Artigo": "Ritmeester Assortiment 7030", "Origem": "Holanda", "Ano": "c. 1976-1979", "Preço (€)": 125.0, "Selecionado para Venda": True, "Notas": "Luxuoso estojo de veludo vermelho com 30 unidades.", "Foto": ""}
 ]
 
-# Função robusta para processar imagens (Corrige HDR, rotação EXIF e perfis de cor)
 def process_uploaded_image(uploaded_file):
     try:
         img = Image.open(uploaded_file)
@@ -36,30 +33,36 @@ def process_uploaded_image(uploaded_file):
         st.error(f"Erro ao processar o formato da imagem: {e}")
         return None
 
-# Função para carregar dados guardados ou criar iniciais
 def carregar_dados():
     if os.path.exists(DATA_FILE):
-        return pd.read_csv(DATA_FILE)
+        df = pd.read_csv(DATA_FILE)
     else:
-        df_inicial = pd.DataFrame(dados_iniciais)
-        df_inicial.to_csv(DATA_FILE, index=False)
-        return df_inicial
+        df = pd.DataFrame(dados_iniciais)
+        df.to_csv(DATA_FILE, index=False)
+    
+    # Garante os tipos de dados corretos para evitar erros de atribuição
+    df["ID"] = df["ID"].astype(int)
+    df["Artigo"] = df["Artigo"].astype(str)
+    df["Origem"] = df["Origem"].astype(str)
+    df["Ano"] = df["Ano"].astype(str)
+    df["Preço (€)"] = df["Preço (€)"].astype(float)
+    df["Selecionado para Venda"] = df["Selecionado para Venda"].astype(bool)
+    df["Notas"] = df["Notas"].astype(str)
+    if "Foto" not in df.columns:
+        df["Foto"] = ""
+    else:
+        df["Foto"] = df["Foto"].astype(str)
+    return df
 
 df = carregar_dados()
-if "Selecionado para Venda" not in df.columns:
-    df["Selecionado para Venda"] = True
-if "Foto" not in df.columns:
-    df["Foto"] = ""
 
 st.title("📦 Base de Dados de Caixas de Charutos Vintage")
-st.write("Gerza o seu inventário visualmente, selecione artigos e consulte a tabela de vendas por separadores.")
+st.write("Gestão de inventário visual, seleção de artigos e consulta de anúncios.")
 
-# Organização por Separadores (Abas)
 aba1, aba2, aba3 = st.tabs(["🖼️ Catálogo Visual (2 por linha)", "📊 Tabela de Vendas & Resumo", "➕ Adicionar Novo Artigo"])
 
 with aba1:
     st.subheader("Inventário e Seleção Visual")
-    st.info("Visualize as caixas em formato dividido (2 por linha), faça upload de fotografias e selecione o que deseja vender.")
     
     if df.empty:
         st.warning("Não existem artigos na base de dados.")
@@ -68,10 +71,9 @@ with aba1:
         for i in range(0, len(indices), 2):
             col_a, col_b = st.columns(2)
             
-            # Primeiro artigo da linha
+            # Artigo A
             idx_1 = indices[i]
             row_1 = df.loc[idx_1]
-            
             with col_a:
                 st.markdown(f"### {row_1['Artigo']}")
                 if pd.notna(row_1['Foto']) and row_1['Foto'] != "" and os.path.exists(str(row_1['Foto'])):
@@ -79,7 +81,6 @@ with aba1:
                 else:
                     st.markdown("🖼️ *Sem Fotografia*")
                 
-                # Upload de foto individual com tratamento HDR
                 up_1 = st.file_uploader(f"Alterar foto (ID {row_1['ID']})", type=["jpg", "png", "jpeg"], key=f"up_{row_1['ID']}")
                 if up_1 is not None:
                     processed_img = process_uploaded_image(up_1)
@@ -87,17 +88,17 @@ with aba1:
                         os.makedirs("imagens_caixas", exist_ok=True)
                         caminho = os.path.join("imagens_caixas", f"artigo_{row_1['ID']}.jpg")
                         processed_img.save(caminho, "JPEG")
-                        df.at[idx_1, 'Foto'] = caminho
+                        df.at[idx_1, 'Foto'] = str(caminho)
                         df.to_csv(DATA_FILE, index=False)
-                        st.success("Foto atualizada e processada com sucesso!")
+                        st.success("Foto atualizada com sucesso!")
                         st.rerun()
                 
                 novo_nome_1 = st.text_input("Nome", value=str(row_1['Artigo']), key=f"n_{row_1['ID']}")
                 novo_preco_1 = st.number_input("Preço (€)", value=float(row_1['Preço (€)']), key=f"p_{row_1['ID']}", step=5.0)
                 
                 if novo_nome_1 != row_1['Artigo'] or novo_preco_1 != row_1['Preço (€)']:
-                    df.at[idx_1, 'Artigo'] = novo_nome_1
-                    df.at[idx_1, 'Preço (€)'] = novo_preco_1
+                    df.at[idx_1, 'Artigo'] = str(novo_nome_1)
+                    df.at[idx_1, 'Preço (€)'] = float(novo_preco_1)
                     df.to_csv(DATA_FILE, index=False)
                 
                 st.write(f"**Origem/Ano:** {row_1['Origem']} ({row_1['Ano']})")
@@ -105,7 +106,7 @@ with aba1:
                 
                 sel_1 = st.checkbox("Selecionado para Venda", value=bool(row_1['Selecionado para Venda']), key=f"s_{row_1['ID']}")
                 if sel_1 != row_1['Selecionado para Venda']:
-                    df.at[idx_1, 'Selecionado para Venda'] = sel_1
+                    df.at[idx_1, 'Selecionado para Venda'] = bool(sel_1)
                     df.to_csv(DATA_FILE, index=False)
                     st.rerun()
                 
@@ -115,11 +116,10 @@ with aba1:
                     st.success("Artigo eliminado!")
                     st.rerun()
 
-            # Segundo artigo da linha (se existir)
+            # Artigo B
             if i + 1 < len(indices):
                 idx_2 = indices[i + 1]
                 row_2 = df.loc[idx_2]
-                
                 with col_b:
                     st.markdown(f"### {row_2['Artigo']}")
                     if pd.notna(row_2['Foto']) and row_2['Foto'] != "" and os.path.exists(str(row_2['Foto'])):
@@ -134,17 +134,17 @@ with aba1:
                             os.makedirs("imagens_caixas", exist_ok=True)
                             caminho = os.path.join("imagens_caixas", f"artigo_{row_2['ID']}.jpg")
                             processed_img.save(caminho, "JPEG")
-                            df.at[idx_2, 'Foto'] = caminho
+                            df.at[idx_2, 'Foto'] = str(caminho)
                             df.to_csv(DATA_FILE, index=False)
-                            st.success("Foto atualizada e processada com sucesso!")
+                            st.success("Foto atualizada com sucesso!")
                             st.rerun()
                     
                     novo_nome_2 = st.text_input("Nome", value=str(row_2['Artigo']), key=f"n_{row_2['ID']}")
                     novo_preco_2 = st.number_input("Preço (€)", value=float(row_2['Preço (€)']), key=f"p_{row_2['ID']}", step=5.0)
                     
                     if novo_nome_2 != row_2['Artigo'] or novo_preco_2 != row_2['Preço (€)']:
-                        df.at[idx_2, 'Artigo'] = novo_nome_2
-                        df.at[idx_2, 'Preço (€)'] = novo_preco_2
+                        df.at[idx_2, 'Artigo'] = str(novo_nome_2)
+                        df.at[idx_2, 'Preço (€)'] = float(novo_preco_2)
                         df.to_csv(DATA_FILE, index=False)
                     
                     st.write(f"**Origem/Ano:** {row_2['Origem']} ({row_2['Ano']})")
@@ -152,7 +152,7 @@ with aba1:
                     
                     sel_2 = st.checkbox("Selecionado para Venda", value=bool(row_2['Selecionado para Venda']), key=f"s_{row_2['ID']}")
                     if sel_2 != row_2['Selecionado para Venda']:
-                        df.at[idx_2, 'Selecionado para Venda'] = sel_2
+                        df.at[idx_2, 'Selecionado para Venda'] = bool(sel_2)
                         df.to_csv(DATA_FILE, index=False)
                         st.rerun()
                     
@@ -166,20 +166,16 @@ with aba1:
 
 with aba2:
     st.subheader("📊 Resumo da Tabela de Vendas & Anúncios Seguros")
-    
     df_vendas = df[df["Selecionado para Venda"] == True]
     
     if df_vendas.empty:
-        st.warning("Nenhum artigo selecionado para venda. Selecione artigos no primeiro separador.")
+        st.warning("Nenhum artigo selecionado para venda.")
     else:
         total_valor = df_vendas["Preço (€)"].sum()
-        st.success(f"**Total de artigos selecionados para venda:** {len(df_vendas)} | **Valor Total Combinado:** {total_valor}€")
-        
+        st.success(f"**Total selecionado:** {len(df_vendas)} artigos | **Valor Total:** {total_valor}€")
         st.dataframe(df_vendas[["Artigo", "Origem", "Ano", "Preço (€)"]], use_container_width=True)
         
         st.divider()
-        st.subheader("Textos Prontos a Copiar para OLX e Marketplace (Seguros)")
-        
         for index, row in df_vendas.iterrows():
             with st.expander(f"📢 Anúncio: {row['Artigo']} — {row['Preço (€)']}€"):
                 titulo_seguro = f"Caixa Colecionável de Memorabilia e Arte - {row['Artigo']}"
@@ -214,20 +210,20 @@ with aba3:
                 processed_img = process_uploaded_image(n_foto)
                 if processed_img is not None:
                     os.makedirs("imagens_caixas", exist_ok=True)
-                    nova_foto_path = os.path.join("imagens_caixas", f"artigo_novo_{len(df)+1}.jpg")
+                    nova_foto_path = os.path.join("imagens_caixas", f"artigo_novo_{int(df['ID'].max() + 1 if not df.empty else 1)}.jpg")
                     processed_img.save(nova_foto_path, "JPEG")
             
             novo_registo = pd.DataFrame([{
                 "ID": int(df["ID"].max() + 1) if not df.empty else 1,
-                "Artigo": n_artigo,
-                "Origem": n_origem,
-                "Ano": n_ano,
-                "Preço (€)": n_preco,
+                "Artigo": str(n_artigo),
+                "Origem": str(n_origem),
+                "Ano": str(n_ano),
+                "Preço (€)": float(n_preco),
                 "Selecionado para Venda": True,
-                "Notas": n_notas,
-                "Foto": nova_foto_path
+                "Notas": str(n_notas),
+                "Foto": str(nova_foto_path)
             }])
             df = pd.concat([df, novo_registo], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
-            st.success("Artigo adicionado com sucesso! Atualize a página.")
+            st.success("Artigo adicionado com sucesso!")
             st.rerun()
