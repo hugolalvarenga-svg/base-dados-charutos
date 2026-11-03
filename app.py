@@ -153,10 +153,15 @@ def carregar_dados():
             df["Fotos"] = df["Foto"]
             df = df.drop(columns=["Foto"])
         
-        # Sincroniza e adiciona automaticamente artigos novos que ainda não estejam no CSV local
+        # Sincroniza campos em falta ou novos IDs
         for _, row in df_iniciais.iterrows():
-            if row["ID"] not in df["ID"].values and row["Artigo"] not in df["Artigo"].values:
+            if row["ID"] not in df["ID"].values:
                 df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+            else:
+                # Atualiza anúncios vazios ou desatualizados com os novos textos seguros se necessário
+                idx_existente = df[df["ID"] == row["ID"]].index[0]
+                if pd.isna(df.at[idx_existente, "Anuncio"]) or str(df.at[idx_existente, "Anuncio"]).strip() == "":
+                    df.at[idx_existente, "Anuncio"] = row["Anuncio"]
         df.to_csv(DATA_FILE, index=False)
     else:
         df = df_iniciais
@@ -198,20 +203,19 @@ with aba1:
                     st.markdown(html_imgs, unsafe_allow_html=True)
                 
                 with st.form(f"form_edit_{row['ID']}"):
-                    novo_artigo = st.text_input("Título / Artigo", value=str(row['Artigo']))
+                    novo_artigo = st.text_input("Título / Artigo", value=str(row['Artigo']), key=f"art_{row['ID']}")
                     c1, c2 = st.columns(2)
                     with c1:
-                        nova_origem = st.text_input("Origem", value=str(row['Origem']))
-                        novo_ano = st.text_input("Ano", value=str(row['Ano']))
+                        nova_origem = st.text_input("Origem", value=str(row['Origem']), key=f"orig_{row['ID']}")
+                        novo_ano = st.text_input("Ano", value=str(row['Ano']), key=f"ano_{row['ID']}")
                     with c2:
-                        novo_preco = st.number_input("Preço (€)", value=float(row['Preço (€)']), step=5.0)
-                        novo_sel = st.checkbox("Selecionado para Venda", value=bool(row['Selecionado para Venda']))
+                        novo_preco = st.number_input("Preço (€)", value=float(row['Preço (€)']), step=5.0, key=f"preco_{row['ID']}")
+                        novo_sel = st.checkbox("Selecionado para Venda", value=bool(row['Selecionado para Venda']), key=f"sel_{row['ID']}")
                     
-                    novas_notas = st.text_area("Notas / Descrição", value=str(row['Notas']))
+                    novas_notas = st.text_area("Notas / Descrição", value=str(row['Notas']), key=f"notas_{row['ID']}")
                     
-                    anuncio_padrao = f"Peça de Colecionismo Histórico - {row['Artigo']}\n\nMagnífica peça de memorabilia e design industrial retro ({row['Origem']}, {row['Ano']}), destinada a colecionadores e entusiastas de objectos de época.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: {row['Preço (€)']} €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
-                    anuncio_atual = str(row['Anuncio']) if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else anuncio_padrao
-                    novo_anuncio = st.text_area("Texto do Anúncio Guardado (Seguro para Marketplace)", value=anuncio_atual, height=140)
+                    anuncio_atual = str(row['Anuncio']) if pd.notna(row['Anuncio']) and str(row['Anuncio']).strip() != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\n\nMagnífica peça de memorabilia e design industrial retro ({row['Origem']}, {row['Ano']}), destinada a colecionadores e entusiastas de objectos de época.\n\n• Estado de Conservação: Perfeito estado de preservação, mantido rigorosamente em ambiente próprio e controlado (adega climatizada).\n• Preço: {row['Preço (€)']} €\n• Condições: Entrega em mão em Agualva-Cacém ou envio postal seguro sob consulta."
+                    novo_anuncio = st.text_area("Texto do Anúncio Guardado (Seguro para Marketplace)", value=anuncio_atual, height=140, key=f"anun_{row['ID']}")
                     
                     novas_fotos = st.file_uploader("Alterar / Adicionar Fotos (Máx 4)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key=f"uf_{row['ID']}")
                     
@@ -245,7 +249,7 @@ with aba2:
     else:
         for index, row in df.iterrows():
             with st.expander(f"📋 Anúncio: {row['Artigo']} ({row['Preço (€)']}€)"):
-                texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and row['Anuncio'] != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
+                texto_mostrar = row['Anuncio'] if pd.notna(row['Anuncio']) and str(row['Anuncio']).strip() != "" else f"Peça de Colecionismo Histórico - {row['Artigo']}\nOrigem: {row['Origem']} ({row['Ano']})\nPreço: {row['Preço (€)']}€\nPerfeito estado de conservação em ambiente próprio. Entrega em Agualva-Cacém."
                 st.text_area("Copiar Texto para Plataforma:", value=texto_mostrar, height=140, key=f"copia_txt_{row['ID']}")
 
 with aba3:
