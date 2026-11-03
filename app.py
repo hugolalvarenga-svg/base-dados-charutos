@@ -146,13 +146,20 @@ def imagem_para_base64(caminho):
         return ""
 
 def carregar_dados():
+    df_iniciais = pd.DataFrame(dados_iniciais)
     if os.path.exists(DATA_FILE):
         df = pd.read_csv(DATA_FILE)
         if "Foto" in df.columns and "Fotos" not in df.columns:
             df["Fotos"] = df["Foto"]
             df = df.drop(columns=["Foto"])
+        
+        # Sincroniza e adiciona automaticamente artigos novos que ainda não estejam no CSV local
+        for _, row in df_iniciais.iterrows():
+            if row["ID"] not in df["ID"].values and row["Artigo"] not in df["Artigo"].values:
+                df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+        df.to_csv(DATA_FILE, index=False)
     else:
-        df = pd.DataFrame(dados_iniciais)
+        df = df_iniciais
         df.to_csv(DATA_FILE, index=False)
     
     colunas_obrigatorias = {
