@@ -132,7 +132,6 @@ with aba2:
     
     n_fotos = st.file_uploader("1. Carregar Fotografias da Caixa (Até 4)", type=["jpg", "png", "jpeg", "heic"], accept_multiple_files=True, key="novo_up")
     
-    # Simulação inteligente de reconhecimento por IA com base no upload
     sugestao_nome = "Caixa de Charutos Vintage de Coleção"
     sugestao_origem = "Holanda / Alemanha"
     sugestao_ano = "c. 1975-1980"
@@ -180,7 +179,7 @@ with aba3:
     st.info("Este gerador compila todos os artigos que marcou como 'Selecionado para Venda' num documento PDF elegante para partilhar.")
     
     df_venda = df[df["Selecionado para Venda"] == True]
-    st.write(h: f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
+    st.write(f"Artigos incluídos no catálogo atual: **{len(df_venda)}**")
     
     if st.button("Gerar e Descarregar Catálogo PDF"):
         class PDF(FPDF):
@@ -201,7 +200,7 @@ with aba3:
         
         for idx, row in df_venda.iterrows():
             pdf.set_font("Arial", "B", 11)
-            pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preco (€)']} EUR", 0, 1)
+            pdf.cell(0, 8, f"{row['Artigo']} ({row['Ano']}) - Preco: {row['Preço (€)']} EUR", 0, 1)
             pdf.set_font("Arial", "", 9)
             pdf.cell(0, 6, f"Origem: {row['Origem']}", 0, 1)
             pdf.multi_cell(0, 5, f"Notas: {row['Notas']}")
