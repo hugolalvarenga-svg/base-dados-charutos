@@ -216,12 +216,11 @@ with aba4:
             pdf.set_font("Arial", "", 10)
             
             for index, (idx, row) in enumerate(df_venda.iterrows(), start=1):
-                # Verificar se precisa de nova página antes de começar o lote
+                # Verificar se o espaço restante na página é inferior a 50mm para evitar cortes
                 if pdf.get_y() > 210:
                     pdf.add_page()
                 
-                # 1. Título do Lote e Preço
-                y_pos = pdf.get_y()
+                # 1. Título do Lote e Preço alinhados
                 pdf.set_font("Arial", "B", 11)
                 pdf.cell(150, 6, f"{index}. {row['Artigo']}", 0, 0)
                 pdf.set_font("Arial", "B", 11)
@@ -234,32 +233,36 @@ with aba4:
                 pdf.cell(0, 5, f"Origem: {row['Origem']} | Ano: {row['Ano']}", 0, 1)
                 pdf.ln(3)
                 
-                # 3. Bloco de Foto e Descrição com fluxo seguro (sem sobreposições)
-                y_inicio_bloco = pdf.get_y()
+                # 3. Bloco de Imagem com altura fixa restrita e Texto ao lado
+                y_conteudo = pdf.get_y()
                 fotos = [f.strip() for f in str(row['Fotos']).split(";") if f.strip() != ""]
                 
-                altura_bloco = 35 # altura padrão reservada para a imagem
+                texto_detalhes = f"Detalhes / Conservacao: {row['Notas']}"
                 
                 if fotos and os.path.exists(fotos[0]):
                     try:
-                        # Desenhar imagem à esquerda
-                        pdf.image(fotos[0], x=10, y=y_inicio_bloco, w=45)
+                        # Forçar altura máxima estrita de 28mm para que nenhuma imagem sobreponha o texto
+                        pdf.image(fotos[0], x=10, y=y_conteudo, h=28)
+                        
+                        # Posicionar o bloco de texto à direita da imagem de forma isolada
+                        pdf.set_xy(58, y_conteudo)
+                        pdf.set_font("Arial", "", 9)
+                        pdf.multi_cell(142, 5, texto_detalhes)
+                        
+                        # Garantir que o espaçamento abaixo do bloco respeita o maior elemento (imagem de 28mm ou texto)
+                        y_fim_texto = pdf.get_y()
+                        y_baixo = max(y_fim_texto, y_conteudo + 28)
+                        pdf.set_y(y_baixo + 6)
                     except:
-                        pass
+                        pdf.set_font("Arial", "", 9)
+                        pdf.multi_cell(0, 5, texto_detalhes)
+                        pdf.ln(4)
+                else:
+                    pdf.set_font("Arial", "", 9)
+                    pdf.multi_cell(0, 5, texto_detalhes)
+                    pdf.ln(4)
                 
-                # Posicionar o texto descritivo à direita da imagem de forma isolada
-                pdf.set_xy(60, y_inicio_bloco)
-                pdf.set_font("Arial", "", 9)
-                pdf.multi_cell(140, 5, f"Detalhes / Conservacao: {row['Notas']}")
-                
-                # Calcular o ponto mais baixo atingido (seja pela imagem ou pelo texto)
-                y_fim_texto = pdf.get_y()
-                y_baixo_real = max(y_fim_texto, y_inicio_bloco + altura_bloco)
-                
-                # Atualizar o cursor de forma segura para baixo do bloco
-                pdf.set_y(y_baixo_real + 6)
-                
-                # 4. Linha separadora subtil
+                # 4. Linha separadora subtil entre lotes
                 pdf.set_draw_color(220, 220, 220)
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
                 pdf.ln(6)
